@@ -1,0 +1,242 @@
+html,
+body {
+  /* Prevents the "pull-to-refresh" action on mobile */
+  overscroll-behavior-y: contain;
+
+  /* This also helps prevent other unwanted default actions
+     like pinch-to-zoom on the entire page */
+  touch-action: none;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  background-color: #333;
+  font-family: sans-serif;
+  color: #fff;
+}
+
+#gameCanvas {
+  border: 2px solid #555;
+  background-color: #000;
+  touch-action: none; /* Prevents default touch actions like scrolling */
+  margin-top: 50px;
+}
+#controls {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+.slider-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  min-width: 280px;
+  justify-content: center;
+}
+.slider-container label {
+  flex-shrink: 0;
+}
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 5px;
+}
+input[type="range"] {
+  cursor: pointer;
+  width: 120px;
+}
+
+#game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 20px;
+}
+
+#ui {
+  position: absolute;
+  transform: scale(0.5);
+  right: -10px;
+  top: -25px;
+  font-size: 20px;
+  color: #333;
+  border-radius: 5px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Add styles for the new expand button */
+#expand-controls-btn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 100;
+  /* Make button bigger and center the icon */
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  font-size: 24px;
+  line-height: 30px; /* Helps vertical centering */
+  text-align: center;
+  background-color: #333;
+  color: white;
+  border: 1px solid #555;
+  border-radius: 5px;
+  cursor: pointer;
+}
+#expand-controls-btn:hover {
+  background-color: #444;
+}
+
+/* Modify the .controls style to be a scrollable overlay */
+.controls {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 450px; /* A fixed width for the panel */
+  max-height: 90vh; /* Limit height to 90% of the viewport */
+  overflow-y: auto; /* This makes the panel scrollable */
+  padding: 20px;
+  padding-top: 50px; /* Extra padding at the top for the collapse button */
+  background-color: rgba(34, 34, 34, 0.95); /* Semi-transparent background */
+  border: 1px solid #555;
+  border-radius: 8px;
+  user-select: none;
+  z-index: 99;
+}
+
+/* Add style for the collapse button that will be inside the panel */
+#collapse-controls-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 5px 10px;
+  background-color: #555;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#collapse-controls-btn:hover {
+  background-color: #777;
+}
+
+/* A simple utility class to hide elements */
+.hidden {
+  display: none !important;
+}
+
+.controls .ctrl-line {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.controls label {
+  display: inline-block;
+  min-width: 180px;
+  font-size: 0.9em;
+}
+
+.controls input[type="range"] {
+  width: 200px;
+  vertical-align: middle;
+  margin-right: 10px;
+}
+
+.controls span {
+  display: inline-block;
+  min-width: 50px;
+  text-align: right;
+  font-weight: bold;
+  font-size: 0.9em;
+}
+
+@media screen and (max-width: 600px) {
+  /* Make the panel a full-screen overlay on narrow screens */
+  .controls {
+    width: 100%;
+    height: 100%;
+    max-height: 100vh;
+    top: 0;
+    left: 0;
+    border-radius: 0;
+    box-sizing: border-box; /* Ensures padding is included in the 100% width/height */
+  }
+
+  /* Make the collapse button a bit bigger for easier tapping */
+  #collapse-controls-btn {
+    padding: 10px 15px;
+    font-size: 16px;
+  }
+
+  /* Stack the label on top of the slider for better readability */
+  .controls div {
+    flex-direction: column;
+    align-items: flex-start; /* Align items to the left */
+    gap: 8px; /* Add some space between label and slider */
+  }
+
+  .controls label {
+    min-width: 0; /* Allow label to be its natural width */
+  }
+
+  /* Make the slider take up more width */
+  .controls input[type="range"] {
+    width: 90%;
+  }
+
+  /* Align the value display to the left */
+  .controls span {
+    text-align: left;
+    min-width: 0;
+    padding-left: 5px;
+  }
+}
+
+.major-action-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 15px;
+  font-size: 1em;
+  font-weight: bold;
+  background-color: #5a5a5a;
+  color: white;
+  border: 1px solid #777;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.major-action-btn:hover {
+  background-color: #6a6a6a;
+}
+
+#info-display {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 8px 12px;
+  border-radius: 5px;
+  color: white;
+  font-family: sans-serif;
+  font-size: 14px;
+  pointer-events: none; /* Allows clicks to pass through */
+  z-index: 50;
+}
