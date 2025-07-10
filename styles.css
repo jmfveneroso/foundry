@@ -20,7 +20,7 @@ body {
   border: 2px solid #555;
   background-color: #000;
   touch-action: none; /* Prevents default touch actions like scrolling */
-  margin-top: 50px;
+  margin-top: 120px;
 }
 #controls {
   margin-top: 10px;
@@ -227,16 +227,218 @@ input[type="range"] {
   background-color: #6a6a6a;
 }
 
-#info-display {
+#target-shape-display {
   position: absolute;
-  top: 10px;
+  top: 50px;
   right: 10px;
   background-color: rgba(0, 0, 0, 0.6);
   padding: 8px 12px;
   border-radius: 5px;
-  color: white;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+#target-shape-display p {
+  margin: 0;
   font-family: sans-serif;
   font-size: 14px;
-  pointer-events: none; /* Allows clicks to pass through */
+  color: white;
+  font-weight: bold;
+}
+
+#target-shape-display canvas {
+  background-color: #000;
+  border: 1px solid #555;
+}
+
+/* Styles for the level selector UI */
+.level-selector-container {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #555;
+}
+
+.level-selector-container h3 {
+  margin: 0 0 10px 0;
+  text-align: center;
+  font-size: 1.1em;
+  font-weight: bold;
+}
+
+.level-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+  gap: 10px;
+}
+
+.level-btn {
+  padding: 10px 5px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  background-color: #4a4a4a;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 5px;
+  text-align: center;
+  transition: background-color 0.2s;
+}
+
+.level-btn:hover {
+  background-color: #6a6a6a;
+  border-color: #777;
+}
+
+#level-complete-screen button:hover {
+  background-color: #218838;
+}
+
+/* Style for the top-left level display */
+#level-display {
+  position: absolute;
+  top: 75px;
+  left: 30px;
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 10px 15px;
+  border-radius: 5px;
+  color: white;
+  font-family: sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  pointer-events: none;
   z-index: 50;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+/* Style for the molten metal counter, now centered */
+#metal-counter-display {
+  position: absolute;
+  top: 75px;
+  left: 50%; /* Center horizontally */
+  transform: translateX(-50%); /* Adjust for element width */
+  padding: 10px 15px;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 5px;
+  font-family: sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  pointer-events: none;
+  z-index: 50;
+  color: #ffd700; /* Gold color, to match molten metal */
+  transition: color 0.3s ease-in-out;
+  /* Apply the new shimmer animation */
+  animation: shimmer 1.5s infinite linear;
+}
+
+/* UPDATE this class to also disable the animation and text-shadow */
+.counter-empty {
+  color: #808080 !important;
+  animation: none !important;
+  text-shadow: none !important;
+}
+
+/* ADD this keyframe animation for the shimmer effect */
+@keyframes shimmer {
+  0%,
+  100% {
+    color: #ffd700; /* Gold */
+    text-shadow: 0 0 7px #ff8c00; /* Orange glow */
+  }
+  50% {
+    color: #ffac4d; /* Tan */
+    text-shadow: 0 0 10px #ff4500; /* Red-orange glow */
+  }
+}
+7
+/* Style for the sand counter when it's empty */
+.counter-empty {
+  color: #ff4d4d; /* A bright, urgent red */
+  transform: scale(1.05); /* Make it slightly larger */
+  transition:
+    color 0.3s,
+    transform 0.3s;
+}
+
+.slider-container label {
+  flex-shrink: 0;
+}
+
+.btn-disabled {
+  background-color: #555 !important;
+  border-color: #444 !important;
+  color: #888 !important;
+  cursor: not-allowed !important;
+  /* Stop the pulse animation if it's active */
+  animation: none !important;
+  box-shadow: none !important;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 100, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 8px 8px rgba(255, 255, 100, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 100, 0);
+  }
+}
+
+.highlight-btn {
+  background-color: #8a8a66; /* A distinct yellowish-gray */
+  border: 1px solid #ffff8d; /* A yellow border */
+  /* Add a pulsing glow animation to attract attention */
+  animation: pulse 2.5s infinite;
+}
+
+/* Styles for the level complete screen overlay */
+#level-complete-screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.75);
+  z-index: 200; /* Ensure it's on top of other elements */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  text-align: center;
+}
+
+#level-complete-screen .screen-content {
+  background-color: #2a2a2a;
+  padding: 40px 60px;
+  border-radius: 10px;
+  border: 2px solid #555;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+#level-complete-screen h2 {
+  margin-top: 0;
+  margin-bottom: 25px;
+  font-size: 2.5em;
+  color: #ffc; /* A nice celebratory yellow */
+}
+
+/* Style for the button now inside the screen */
+#level-complete-screen button {
+  padding: 15px 30px;
+  font-size: 1.2em;
+  font-weight: bold;
+  cursor: pointer;
+  background-color: #28a745; /* Green for "go" */
+  color: white;
+  border: 1px solid #1c7430;
+  border-radius: 5px;
+  transition: background-color 0.2s;
+}
+
+#level-complete-screen button:hover {
+  background-color: #218838;
 }

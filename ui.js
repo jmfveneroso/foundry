@@ -1,10 +1,10 @@
 import { Config } from "./config.js";
 import { GameState } from "./game_state.js";
-import { HammerBlock } from "./hammer.js";
 import { StoneBlock } from "./stone.js";
 import { createEmptyGrid } from "./grid.js";
 import { isInBounds } from "./grid.js";
 import { RigidBody } from "./rigid_body.js";
+import { getShapeHash } from "./utils.js";
 
 const controlsPanel = document.querySelector(".controls");
 export const canvas = document.getElementById("gameCanvas");
@@ -25,19 +25,12 @@ const configurableParams = [
   ["waterMode", "toggle"],
   ["singleParticleCreation", "toggle"],
   ["debugWaterShapes", "toggle"],
+  ["sandboxMode", "toggle"],
 ];
 
 function resizeCanvas() {
-  // CHANGE these two lines
-  canvasWidth = window.innerWidth;
-  canvasHeight = window.innerHeight; // The canvas should always fill the window
-
-  // This logic is incorrect for an overlay panel and should be removed:
-  // canvasHeight = window.innerHeight - controlsPanel.offsetHeight - 10;
-
-  if (canvasHeight < 50) canvasHeight = 50; // This check can be removed or kept as a safeguard
-  canvas.width = canvasWidth;
-  canvas.height = canvasHeight;
+  // canvas.width = Config.GRID_WIDTH * Config.cellSize;
+  // canvas.height = Config.GRID_HEIGHT * Config.cellSize;
 }
 
 /**
@@ -64,6 +57,11 @@ function handleSliderChange(event) {
 function handleCheckboxChange(event) {
   const checkbox = event.target;
   Config[checkbox.id] = checkbox.checked;
+
+  // If the sandbox mode was changed, fire a global event to reset the game state
+  if (checkbox.id === "sandboxMode") {
+    window.dispatchEvent(new CustomEvent("sandboxModeToggled"));
+  }
 }
 
 function camelCaseToTitleCase(text) {
@@ -207,22 +205,12 @@ export function addUiEvents() {
     newStone.placeInGrid();
   });
 
-  document.getElementById("hammerButton").addEventListener("click", () => {
-    if (GameState.activeHammer) return;
-    const hammerWidth = 3;
-    const hammerHeight = 8;
-    const startX =
-      Math.floor(Config.GRID_WIDTH / 2) - Math.floor(hammerWidth / 2);
-    GameState.activeHammer = new HammerBlock(
-      startX,
-      0,
-      hammerWidth,
-      hammerHeight
-    );
-    GameState.activeHammer.placeInGrid();
-  });
-
   document.getElementById("solidifyButton").addEventListener("click", () => {
+    // Prevent action if the button is disabled
+    if (event.currentTarget.classList.contains("btn-disabled")) {
+      return;
+    }
+
     const visited = new Array(Config.GRID_HEIGHT)
       .fill(0)
       .map(() => new Array(Config.GRID_WIDTH).fill(false));
@@ -282,6 +270,14 @@ export function addUiEvents() {
           const newBlock = new RigidBody(minX, minY, shape);
           GameState.stoneBlocks.push(newBlock);
           newBlock.placeInGrid();
+
+          const newShapeHash = getShapeHash(shape);
+          const currentLevel =
+            GameState.gameLevels[GameState.currentLevelIndex];
+          if (newShapeHash === currentLevel.targetShapeHash) {
+            GameState.isLevelComplete = true;
+            GameState.highlightedWinShape = newBlock;
+          }
         }
       }
     }
@@ -293,4 +289,42 @@ export function clearCanvas() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = GameState.backgroundPattern;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+export function generateLevelSelector(levels) {
+  const selectorContainer = document.createElement("div");
+  selectorContainer.className = "level-selector-container";
+
+  const title = document.createElement("h3");
+  title.textContent = "Level Select";
+  selectorContainer.appendChild(title);
+
+  const grid = document.createElement("div");
+  grid.className = "level-grid";
+
+  // Create a button for each valid level
+  levels.forEach((level, index) => {
+    if (level.level === "WIN" || level.level === "ERROR") return;
+
+    const button = document.createElement("button");
+    button.className = "level-btn";
+    button.textContent = level.level;
+    button.dataset.levelIndex = index;
+
+    button.addEventListener("click", () => {
+      const levelIndex = parseInt(button.dataset.levelIndex, 10);
+      // Fire a global event that the main script will listen for
+      window.dispatchEvent(
+        new CustomEvent("levelSelected", {
+          detail: { levelIndex: levelIndex },
+        })
+      );
+      // Hide the controls panel for convenience after selecting a level
+      controlsPanel.classList.add("hidden");
+    });
+    grid.appendChild(button);
+  });
+
+  selectorContainer.appendChild(grid);
+  controlsPanel.appendChild(selectorContainer);
 }

@@ -20,20 +20,58 @@ export class RigidBody {
     }
   }
 
-  draw(ctx) {
-    ctx.fillStyle = Config.colors[Config.STONE];
+  draw(ctx, isHighlighted = false) {
+    if (isHighlighted) {
+      // --- Draw the simple green highlight for completed levels ---
+      ctx.fillStyle = "#00ff00";
+      for (const point of this.shape) {
+        ctx.fillRect(
+          (this.x + point.x) * Config.cellSize,
+          (this.y + point.y) * Config.cellSize,
+          Config.cellSize,
+          Config.cellSize
+        );
+      }
+    } else {
+      // --- Draw the new shiny metal look ---
+      const highlightColor = "#c0c0c0"; // Light silver
+      const baseColor = "#808080"; // Medium gray
+      const shadowColor = "#404040"; // Dark gray
+
+      for (const point of this.shape) {
+        const canvasX = (this.x + point.x) * Config.cellSize;
+        const canvasY = (this.y + point.y) * Config.cellSize;
+
+        // Create a top-left to bottom-right gradient for each tile
+        const gradient = ctx.createLinearGradient(
+          canvasX,
+          canvasY,
+          canvasX + Config.cellSize,
+          canvasY + Config.cellSize
+        );
+        gradient.addColorStop(0, highlightColor);
+        gradient.addColorStop(0.5, baseColor);
+        gradient.addColorStop(1, shadowColor);
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(canvasX, canvasY, Config.cellSize, Config.cellSize);
+      }
+    }
+
+    // Draw a grid overlay on top of the shape's tiles
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.2)"; // A subtle, dark line for the grid
+    ctx.lineWidth = 1;
     for (const point of this.shape) {
-      ctx.fillRect(
+      ctx.strokeRect(
         (this.x + point.x) * Config.cellSize,
         (this.y + point.y) * Config.cellSize,
         Config.cellSize,
         Config.cellSize
       );
     }
+
+    // --- CONTOUR DRAWING ---
     const edgeSet = new Set();
-    const contourColor = "rgba(0, 0, 0, 0.8)";
-    ctx.strokeStyle = contourColor;
-    ctx.lineWidth = 1;
     const toggleEdge = (x1, y1, x2, y2) => {
       const key =
         x1 < x2
@@ -49,6 +87,7 @@ export class RigidBody {
         edgeSet.add(key);
       }
     };
+
     for (const point of this.shape) {
       const x = this.x + point.x;
       const y = this.y + point.y;
@@ -57,13 +96,33 @@ export class RigidBody {
       toggleEdge(x, y, x, y + 1);
       toggleEdge(x + 1, y, x + 1, y + 1);
     }
+
+    // Create the path for the outline
     ctx.beginPath();
     for (const edge of edgeSet) {
       const [x1, y1, x2, y2] = edge.split(",").map(Number);
       ctx.moveTo(x1 * Config.cellSize, y1 * Config.cellSize);
       ctx.lineTo(x2 * Config.cellSize, y2 * Config.cellSize);
     }
-    ctx.stroke();
+    ctx.closePath();
+
+    // Draw the outline based on whether it's highlighted
+    if (isHighlighted) {
+      ctx.strokeStyle = "rgba(255, 255, 255, 1)";
+      ctx.lineWidth = 5;
+      ctx.stroke();
+    } else {
+      // Pass 1: Draw a thick, dark background for the border.
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.7)";
+      ctx.lineJoin = "round"; // Use 'round' for clean corners on thick lines
+      ctx.stroke();
+
+      // Pass 2: Draw a thin, lighter line on top to create a beveled highlight.
+      // ctx.lineWidth = 1;
+      // ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
+      // ctx.stroke();
+    }
   }
 
   placeInGrid() {

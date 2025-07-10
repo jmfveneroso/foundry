@@ -1,15 +1,16 @@
 export const baseConfig = {
   // Grid.
-  GRID_WIDTH: 30,
-  GRID_HEIGHT: 40,
+  GRID_WIDTH: 20,
+  GRID_HEIGHT: 30,
   availableWidth: window.innerWidth * 0.95,
   availableHeight: (window.innerHeight - 180) * 0.95,
   EMPTY: 0,
   SAND: 1,
   STONE: 2,
+  sandboxMode: false,
   waterMode: true,
   singleParticleCreation: true,
-  debugWaterShapes: true,
+  debugWaterShapes: false,
   viscosity: 0,
   cohesion: 0,
   simulationUpdateInterval: 60,
@@ -34,6 +35,15 @@ baseConfig.colors = {
   [baseConfig.SAND]: "#d2b48c",
   [baseConfig.STONE]: "#808080",
 };
+
+// Add this new color palette for the molten metal
+baseConfig.moltenColors = [
+  "#ff4500", // OrangeRed
+  "#ff8c00", // DarkOrange
+  "#ffac4d", // Tan (Original Sand Color)
+  "#ffd700", // Gold
+  "#ffff00", // Yellow
+];
 
 const mobileOverrides = {};
 

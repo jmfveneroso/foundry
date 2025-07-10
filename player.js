@@ -32,6 +32,9 @@ function handleDrawStart(evt) {
       gridY < stone.y + stone.height
     ) {
       GameState.draggedStone = stone;
+      // Calculate and store the initial click offset
+      GameState.dragOffsetX = gridX - stone.x;
+      GameState.dragOffsetY = gridY - stone.y;
       GameState.isDrawing = false; // Make sure we're not in drawing mode
       return;
     }
@@ -46,10 +49,12 @@ function handleDrawMove(evt) {
   evt.preventDefault();
 
   if (GameState.draggedStone) {
-    const { gridX, gridY } = getGridPos(evt);
-    if (!gridX) return; // Can happen if touch moves off-screen
-    const newX = gridX - Math.floor(GameState.draggedStone.width / 2);
-    const newY = gridY - Math.floor(GameState.draggedStone.height / 2);
+    const pos = getGridPos(evt);
+    if (!pos) return; // Can happen if touch moves off-screen
+
+    // Calculate the new top-left position using the stored offset
+    const newX = pos.gridX - GameState.dragOffsetX;
+    const newY = pos.gridY - GameState.dragOffsetY;
     GameState.draggedStone.moveTo(newX, newY);
   } else if (GameState.isDrawing) {
     // This is the first movement of a potential drag.

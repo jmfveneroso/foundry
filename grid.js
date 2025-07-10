@@ -14,14 +14,24 @@ export function createEmptyGrid() {
 }
 
 /**
- * Draws only the loose particles (sand/water). Rigid bodies are drawn separately.
+ * Draws only the loose particles (molten metal), making them shimmer and glow.
  */
 export function drawGrid() {
+  // Set up a glow effect using canvas shadows
+  ctx.shadowColor = "#ff8c00"; // A fiery orange glow
+  ctx.shadowBlur = 7;
+
+  const moltenColors = Config.moltenColors;
+  const numColors = moltenColors.length;
+
   for (let y = 0; y < Config.GRID_HEIGHT; y++) {
     for (let x = 0; x < Config.GRID_WIDTH; x++) {
       // We only draw SAND particles here. STONEs are handled by their own draw methods.
       if (GameState.grid[y][x] === Config.SAND) {
-        ctx.fillStyle = Config.colors[Config.SAND];
+        // Pick a random color from the palette on every frame to create a shimmer
+        const colorIndex = Math.floor(Math.random() * numColors);
+        ctx.fillStyle = moltenColors[colorIndex];
+
         ctx.fillRect(
           x * Config.cellSize,
           y * Config.cellSize,
@@ -31,6 +41,9 @@ export function drawGrid() {
       }
     }
   }
+
+  // Reset the shadow effect so it doesn't affect other drawing operations
+  ctx.shadowBlur = 0;
 }
 
 export function updateGrid() {

@@ -5,7 +5,14 @@ import { isInBounds } from "./grid.js";
 
 function getPointerPos(evt) {
   const rect = canvas.getBoundingClientRect();
-  const pointer = evt.touches ? evt.touches[0] : evt;
+  // For touchend, the data is in changedTouches. For others, it's in touches. For mouse, it's the event itself.
+  const pointer = evt.changedTouches?.[0] || evt.touches?.[0] || evt;
+
+  // If for any reason a pointer couldn't be determined, exit gracefully.
+  if (!pointer || typeof pointer.clientX === "undefined") {
+    return null;
+  }
+
   return {
     x: pointer.clientX - rect.left,
     y: pointer.clientY - rect.top,
@@ -327,6 +334,15 @@ export function updateSand(x, y) {
 }
 
 export function addSand(evt) {
+  if (!Config.sandboxMode) {
+    const currentLevel = GameState.gameLevels[GameState.currentLevelIndex];
+    if (GameState.sandParticlesUsed >= currentLevel.maxSand) {
+      return; // Player is out of sand for this level
+    }
+  }
+
+  let placedCount = 0;
+
   const pos = getPointerPos(evt);
   const gridX = Math.floor(pos.x / Config.cellSize);
   const gridY = Math.floor(pos.y / Config.cellSize);
@@ -339,11 +355,17 @@ export function addSand(evt) {
       GameState.grid[gridY][gridX] === Config.EMPTY
     ) {
       GameState.grid[gridY][gridX] = Config.SAND;
+      placedCount = 1;
     }
   } else {
     // Use the original "brush" logic for multi-particle creation
     for (let i = -2; i <= 2; i++) {
       for (let j = -2; j <= 2; j++) {
+        if (
+          !Config.sandboxMode &&
+          GameState.sandParticlesUsed + placedCount >= currentLevel.maxSand
+        )
+          break;
         if (Math.random() > 0.5) {
           const newX = gridX + i;
           const newY = gridY + j;
@@ -352,11 +374,18 @@ export function addSand(evt) {
             GameState.grid[newY][newX] === Config.EMPTY
           ) {
             GameState.grid[newY][newX] = Config.SAND;
+            placedCount++;
           }
         }
       }
+      if (
+        !Config.sandboxMode &&
+        GameState.sandParticlesUsed + placedCount >= currentLevel.maxSand
+      )
+        break;
     }
   }
+  GameState.sandParticlesUsed += placedCount;
 }
 
 /**

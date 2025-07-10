@@ -16,16 +16,31 @@
       <canvas id="gameCanvas"></canvas>
     </div>
 
-    <div id="info-display">
-      <span id="rigidParticleCounter">Solid Particles: 0</span>
+    <div id="target-shape-display">
+      <p>Target Shape</p>
+      <canvas id="targetShapeCanvas"></canvas>
+    </div>
+
+    <div id="level-display">
+      <span id="levelIndicator">Level: 1</span>
+    </div>
+
+    <div id="metal-counter-display">
+      <span id="sandCounter">Sand: 0 / 0</span>
     </div>
 
     <div id="controls">
       <div class="buttons">
-        <button id="resetButton">Reset</button>
+        <button id="resetButton">Reset Level</button>
         <button id="stoneButton">Create Stone</button>
-        <button id="hammerButton">Hammer</button>
         <button id="solidifyButton">Solidify</button>
+      </div>
+    </div>
+
+    <div id="level-complete-screen" class="hidden">
+      <div class="screen-content">
+        <h2>Level Complete!</h2>
+        <button id="nextLevelButton">Next Level</button>
       </div>
     </div>
 

@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>High-Speed Puzzle Generator</title>
+    <style>
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background-color: #1a1a1a;
+        color: #e0e0e0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        gap: 20px;
+      }
+      #controls {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+      }
+      #startStopButton {
+        padding: 12px 25px;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        transition: background-color 0.2s;
+        width: 120px;
+      }
+      #startStopButton.running {
+        background-color: #dc3545;
+      }
+      #status {
+        background-color: #2a2a2a;
+        padding: 10px 15px;
+        border-radius: 5px;
+        text-align: center;
+        font-size: 14px;
+        min-width: 300px;
+      }
+      #gallery {
+        width: 90vw;
+        max-width: 1200px;
+        height: 75vh;
+        background-color: #252525;
+        border: 2px solid #555;
+        border-radius: 5px;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+      }
+      #gallery h2 {
+        text-align: center;
+        margin-top: 0;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #555;
+      }
+      #gallery-shapes {
+        overflow-y: auto;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-content: flex-start;
+      }
+      .gallery-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        background-color: #333;
+        padding: 5px;
+        border-radius: 4px;
+      }
+      .gallery-item canvas {
+        background-color: #000;
+        border: 1px solid #666;
+      }
+      .gallery-item p {
+        margin: 0;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>High-Speed Puzzle Generator</h1>
+    <div id="controls">
+      <button id="startStopButton">Start</button>
+      <div id="status">Generator is paused.</div>
+    </div>
+    <aside id="gallery">
+      <h2>Foundry Gallery</h2>
+      <div id="gallery-shapes"></div>
+    </aside>
+
+    <script>
+      // --- CONFIGURATION & SETUP ---
+      const CONFIG = {
+        GRID_SIZE: 8,
+        COLORS: { MOLD: "#444444", MOLTEN: "#ffac4d" },
+      };
+
+      const EMPTY = 0,
+        MOLD = 1,
+        MOLTEN = 2;
+
+      const startStopButton = document.getElementById("startStopButton");
+      const statusDiv = document.getElementById("status");
+      const galleryContainer = document.getElementById("gallery-shapes");
+
+      // --- CORE DATA STRUCTURES & STATE ---
+      let shapeIdCounter = 0;
+      class Shape {
+        constructor(points, name = `Shape #${shapeIdCounter}`) {
+          this.id = shapeIdCounter++;
+          this.name = name;
+          this.points = this.normalize(points);
+          this.hash = this.generateHash();
+          const xs = this.points.map((p) => p.x);
+          const ys = this.points.map((p) => p.y);
+          this.width = xs.length > 0 ? Math.max(...xs) + 1 : 0;
+          this.height = ys.length > 0 ? Math.max(...ys) + 1 : 0;
+        }
+        normalize(points) {
+          if (points.length === 0) return [];
+          const minX = Math.min(...points.map((p) => p.x));
+          const minY = Math.min(...points.map((p) => p.y));
+          return points.map((p) => ({ x: p.x - minX, y: p.y - minY }));
+        }
+        generateHash() {
+          return this.points
+            .map((p) => `${p.x},${p.y}`)
+            .sort()
+            .join(";");
+        }
+      }
+
+      let isPaused = true;
+      const toolbox = new Map();
+      const mainQueue = [];
+      const actionQueue = [];
+      const visitedStates = new Set();
+      let galleryUpdateBuffer = [];
+
+      // --- RENDERING FUNCTIONS ---
+      function addShapeToGallery(shape) {
+        if (
+          !shape ||
+          !shape.hash ||
+          document.getElementById(`shape-${shape.hash}`)
+        )
+          return;
+        galleryUpdateBuffer.push(shape);
+      }
+
+      function renderGallery() {
+        if (galleryUpdateBuffer.length === 0) return;
+
+        for (const shape of galleryUpdateBuffer) {
+          const itemDiv = document.createElement("div");
+          itemDiv.className = "gallery-item";
+          itemDiv.id = `shape-${shape.hash}`;
+          const shapeCanvas = document.createElement("canvas");
+          const shapeCtx = shapeCanvas.getContext("2d");
+          const galleryCellSize = 10;
+          shapeCanvas.width = (shape.width || 1) * galleryCellSize;
+          shapeCanvas.height = (shape.height || 1) * galleryCellSize;
+          shapeCtx.fillStyle = CONFIG.COLORS.MOLTEN;
+          for (const point of shape.points) {
+            shapeCtx.fillRect(
+              point.x * galleryCellSize,
+              point.y * galleryCellSize,
+              galleryCellSize,
+              galleryCellSize
+            );
+          }
+          const nameP = document.createElement("p");
+          nameP.textContent = `Shape #${shape.id} (${shape.points.length}b)`;
+          itemDiv.appendChild(shapeCanvas);
+          itemDiv.appendChild(nameP);
+          galleryContainer.appendChild(itemDiv);
+        }
+        galleryUpdateBuffer = []; // Clear the buffer after rendering
+      }
+
+      // --- ALGORITHM CORE (Synchronous versions for speed) ---
+      function canPlace(grid, shape, startX, startY) {
+        if (startY < 0) return false;
+        for (const point of shape.points) {
+          const x = startX + point.x;
+          const y = startY + point.y;
+          if (
+            x < 0 ||
+            x >= CONFIG.GRID_SIZE ||
+            y < 0 ||
+            y >= CONFIG.GRID_SIZE ||
+            grid[y][x] !== EMPTY
+          )
+            return false;
+        }
+        return true;
+      }
+
+      function findRestingPosition(grid, shape, startX) {
+        for (let y = -1; y <= CONFIG.GRID_SIZE - shape.height; y++) {
+          if (!canPlace(grid, shape, startX, y + 1)) return y;
+        }
+        return CONFIG.GRID_SIZE - shape.height;
+      }
+
+      function runLayerByLayerSimulation(grid) {
+        const allDiscoveredShapes = new Map();
+        const moltenGrid = grid.map((row) => [...row]);
+
+        for (let h = CONFIG.GRID_SIZE - 1; h >= 0; h--) {
+          for (let x = 0; x < CONFIG.GRID_SIZE; x++) {
+            if (moltenGrid[h][x] === EMPTY) moltenGrid[h][x] = MOLTEN;
+          }
+          const visited = new Array(CONFIG.GRID_SIZE)
+            .fill(0)
+            .map(() => new Array(CONFIG.GRID_SIZE).fill(false));
+          for (let y = h; y < CONFIG.GRID_SIZE; y++) {
+            for (let x = 0; x < CONFIG.GRID_SIZE; x++) {
+              if (moltenGrid[y][x] === MOLTEN && !visited[y][x]) {
+                const shapeParticles = [];
+                const queue = [{ x, y }];
+                visited[y][x] = true;
+                while (queue.length > 0) {
+                  const current = queue.shift();
+                  shapeParticles.push(current);
+                  const dirs = [
+                    { dx: 0, dy: 1 },
+                    { dx: 0, dy: -1 },
+                    { dx: 1, dy: 0 },
+                    { dx: -1, dy: 0 },
+                  ];
+                  for (const dir of dirs) {
+                    const nx = current.x + dir.dx;
+                    const ny = current.y + dir.dy;
+                    if (
+                      nx >= 0 &&
+                      nx < CONFIG.GRID_SIZE &&
+                      ny >= 0 &&
+                      ny < CONFIG.GRID_SIZE &&
+                      !visited[ny][nx] &&
+                      moltenGrid[ny][nx] === MOLTEN
+                    ) {
+                      visited[ny][nx] = true;
+                      queue.push({ x: nx, y: ny });
+                    }
+                  }
+                }
+                if (shapeParticles.length > 0) {
+                  const newShape = new Shape(shapeParticles);
+                  if (!allDiscoveredShapes.has(newShape.hash)) {
+                    allDiscoveredShapes.set(newShape.hash, newShape);
+                  }
+                }
+              }
+            }
+          }
+        }
+        return Array.from(allDiscoveredShapes.values());
+      }
+
+      function generateLayoutActions(currentState) {
+        const availableShapes = Array.from(currentState.availableHashes).map(
+          (hash) => toolbox.get(hash)
+        );
+        const layoutActions = [];
+        for (let i = 0; i < availableShapes.length; i++) {
+          for (let j = i; j < availableShapes.length; j++) {
+            const pieceA = availableShapes[i];
+            const pieceB = availableShapes[j];
+            for (let xA = 0; xA <= CONFIG.GRID_SIZE - pieceA.width; xA++) {
+              const gridWithA = new Array(CONFIG.GRID_SIZE)
+                .fill(0)
+                .map(() => new Array(CONFIG.GRID_SIZE).fill(0));
+              const yA = findRestingPosition(gridWithA, pieceA, xA);
+              for (const p of pieceA.points) {
+                gridWithA[yA + p.y][xA + p.x] = MOLD;
+              }
+              for (let xB = 0; xB <= CONFIG.GRID_SIZE - pieceB.width; xB++) {
+                if (pieceA === pieceB && xA >= xB) continue; // Avoid duplicate arrangements
+                const finalGrid = gridWithA.map((r) => [...r]);
+                const yB = findRestingPosition(finalGrid, pieceB, xB);
+                if (canPlace(finalGrid, pieceB, xB, yB)) {
+                  for (const p of pieceB.points) {
+                    finalGrid[yB + p.y][xB + p.x] = MOLD;
+                  }
+                  layoutActions.push({
+                    grid: finalGrid,
+                    sourceState: currentState,
+                  });
+                }
+              }
+            }
+          }
+        }
+        return layoutActions;
+      }
+
+      let lastUpdateTime = 0;
+      let lastRenderTime = 0;
+
+      /** The main high-speed generation loop. */
+      function generationLoop(currentTime) {
+        if (isPaused) return;
+
+        // Process a batch of actions for performance
+        let actionsProcessed = 0;
+        const BATCH_SIZE = 100;
+
+        while (actionsProcessed < BATCH_SIZE && actionQueue.length > 0) {
+          const action = actionQueue.shift();
+          const newShapes = runLayerByLayerSimulation(action.grid);
+
+          for (const newShape of newShapes) {
+            if (!toolbox.has(newShape.hash)) {
+              toolbox.set(newShape.hash, newShape);
+              addShapeToGallery(newShape);
+
+              const nextHashes = new Set(action.sourceState.availableHashes);
+              nextHashes.add(newShape.hash);
+
+              const nextStateHash = Array.from(nextHashes).sort().join("|");
+              if (!visitedStates.has(nextStateHash)) {
+                visitedStates.add(nextStateHash);
+                mainQueue.push({ availableHashes: nextHashes, history: [] });
+              }
+            }
+          }
+          actionsProcessed++;
+        }
+
+        // If the action queue is empty, generate more actions from the main queue
+        if (actionQueue.length === 0 && mainQueue.length > 0) {
+          const currentState = mainQueue.shift();
+          const newActions = generateLayoutActions(currentState);
+          actionQueue.push(...newActions);
+        }
+
+        // Throttle UI updates to avoid slowing down the simulation
+        if (currentTime - lastRenderTime > 200) {
+          // Update gallery ~5 times/sec
+          renderGallery();
+          lastRenderTime = currentTime;
+        }
+        if (currentTime - lastUpdateTime > 50) {
+          // Update status text ~20 times/sec
+          updateStatus(
+            `Searching... Main Queue: ${mainQueue.length}, Action Queue: ${actionQueue.length}, Found: ${toolbox.size}`
+          );
+          lastUpdateTime = currentTime;
+        }
+
+        if (actionQueue.length === 0 && mainQueue.length === 0) {
+          isPaused = true;
+          startStopButton.textContent = "Done";
+          startStopButton.disabled = true;
+          renderGallery(); // Final render
+          updateStatus(`Search complete! Found ${toolbox.size} unique shapes.`);
+          return;
+        }
+
+        requestAnimationFrame(generationLoop);
+      }
+
+      // --- INITIALIZATION & EVENT LISTENERS ---
+      function init() {
+        const square3x3 = new Shape(
+          [
+            { x: 0, y: 0 },
+            { x: 1, y: 0 },
+            { x: 2, y: 0 },
+            { x: 0, y: 1 },
+            { x: 1, y: 1 },
+            { x: 2, y: 1 },
+            { x: 0, y: 2 },
+            { x: 1, y: 2 },
+            { x: 2, y: 2 },
+          ],
+          "3x3 Square"
+        );
+        const rect2x3 = new Shape(
+          [
+            { x: 0, y: 0 },
+            { x: 1, y: 0 },
+            { x: 0, y: 1 },
+            { x: 1, y: 1 },
+            { x: 0, y: 2 },
+            { x: 1, y: 2 },
+          ],
+          "2x3 Rect"
+        );
+
+        toolbox.set(square3x3.hash, square3x3);
+        toolbox.set(rect2x3.hash, rect2x3);
+        addShapeToGallery(square3x3);
+        addShapeToGallery(rect2x3);
+        renderGallery();
+
+        const initialHashes = new Set([square3x3.hash, rect2x3.hash]);
+        const initialStateHash = Array.from(initialHashes).sort().join("|");
+        mainQueue.push({ availableHashes: initialHashes, history: [] });
+        visitedStates.add(initialStateHash);
+
+        startStopButton.addEventListener("click", () => {
+          isPaused = !isPaused;
+          if (!isPaused) {
+            startStopButton.textContent = "Stop";
+            startStopButton.classList.add("running");
+            requestAnimationFrame(generationLoop);
+          } else {
+            startStopButton.textContent = "Resume";
+            startStopButton.classList.remove("running");
+            renderGallery(); // Render any buffered shapes when pausing
+          }
+        });
+      }
+
+      init();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,162 @@
+=== LEVEL: 1
+
+Molds:
+xxxxx
+xxxxx
+xxxxx
+xxxxx
+xxxxx
+
+Target:
+xxx
+xxx
+xxx
+xxx
+xxx
+
+MaxMoltenMetal: 15
+
+=== LEVEL: 2
+
+Molds:
+xxxx
+xxxx
+xxxx
+xxxx
+
+xx
+ x
+
+Target:
+xx
+xxx
+
+MaxMoltenMetal: 5
+
+=== LEVEL: 3
+
+Molds:
+x
+x
+x
+
+x
+x
+x
+
+Target:
+xxx
+ x
+ x
+ x
+
+MaxMoltenMetal: 10
+
+=== LEVEL: 4
+
+Molds:
+x
+xx
+xxx
+
+Target:
+xx
+ xx
+  xx
+   xx
+    xx
+
+MaxMoltenMetal: 21
+
+=== LEVEL: 5
+
+Molds:
+xx
+ x
+xx
+x
+
+Target:
+xxxxx
+x   x
+x   x
+x   x
+xx xx
+
+MaxMoltenMetal: 24
+
+=== LEVEL: 6
+
+Molds:
+xx
+xx
+
+Target:
+x x x
+x x x
+xxxxx
+  x 
+  x
+
+MaxMoltenMetal: 31
+
+=== LEVEL: 7
+
+Molds:
+xx
+xx
+
+Target:
+xxxx
+xxxx
+  xxxx
+  xxxx
+
+MaxMoltenMetal: 28
+
+=== LEVEL: 8
+
+Molds:
+xx
+
+xx
+
+Target:
+   x
+  xxx
+ xxxxx
+xxxxxxx
+
+MaxMoltenMetal: 35
+
+=== LEVEL: 9
+
+Molds:
+xx
+
+xx
+
+Target:
+   x
+  xxx
+ xxxxx
+xxxxxxx
+   x
+
+MaxMoltenMetal: 44
+
+=== LEVEL: 10
+
+Molds:
+xx
+xx
+
+Target:
+xxxxxx
+x    x
+x xx x
+xxxx x
+     x
+xxxxxx
+
+MaxMoltenMetal: 60
