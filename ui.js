@@ -188,13 +188,6 @@ export function addUiEvents() {
     Config.backgroundColor.patternColor
   );
 
-  document.getElementById("resetButton").addEventListener("click", () => {
-    GameState.grid = createEmptyGrid();
-    GameState.stoneBlocks = [];
-    if (GameState.activeHammer) GameState.activeHammer.removeFromGrid();
-    GameState.activeHammer = null;
-  });
-
   document.getElementById("stoneButton").addEventListener("click", () => {
     const margin = 5;
     const x =
@@ -223,7 +216,14 @@ export function addUiEvents() {
 
     for (let y = 0; y < Config.GRID_HEIGHT; y++) {
       for (let x = 0; x < Config.GRID_WIDTH; x++) {
-        if (GameState.grid[y][x] === Config.SAND && !visited[y][x]) {
+        const cell = GameState.grid[y][x];
+        if (
+          (cell === Config.IRON_MOLTEN || cell === Config.BRASS_MOLTEN) &&
+          !visited[y][x]
+        ) {
+          // Determine material type from the first particle
+          const materialType = cell === Config.BRASS_MOLTEN ? "brass" : "iron";
+
           const lumpParticles = [];
           const queue = [{ x, y }];
           visited[y][x] = true;
@@ -246,7 +246,7 @@ export function addUiEvents() {
               if (
                 isInBounds(nx, ny) &&
                 !visited[ny][nx] &&
-                GameState.grid[ny][nx] === Config.SAND
+                GameState.grid[ny][nx] === Config.IRON_MOLTEN
               ) {
                 visited[ny][nx] = true;
                 searchQueue.push({ x: nx, y: ny });
@@ -267,21 +267,129 @@ export function addUiEvents() {
           }));
 
           // 4. Create a new rigid body with the custom shape
-          const newBlock = new RigidBody(minX, minY, shape);
+          const newBlock = new RigidBody(minX, minY, shape, materialType);
           GameState.stoneBlocks.push(newBlock);
-          newBlock.placeInGrid();
 
-          const newShapeHash = getShapeHash(shape);
-          const currentLevel =
-            GameState.gameLevels[GameState.currentLevelIndex];
-          if (newShapeHash === currentLevel.targetShapeHash) {
-            GameState.isLevelComplete = true;
-            GameState.highlightedWinShape = newBlock;
+          // --- NEW SOLDERING/MERGE LOGIC ---
+          if (materialType === "brass") {
+            const blocksToMerge = findConnectedBrassBlocks(newBlock);
+
+            if (blocksToMerge.size > 1) {
+              mergeBlocks(blocksToMerge);
+            } else {
+              // If no merge happened, just place the new block in the grid
+              newBlock.placeInGrid();
+            }
+          } else {
+            // If it's iron, just place it in the grid
+            newBlock.placeInGrid();
           }
         }
       }
     }
+
+    // After all solidification and merging is complete, check ALL blocks on the screen.
+    const currentLevel = GameState.gameLevels[GameState.currentLevelIndex];
+    for (const block of GameState.stoneBlocks) {
+      const blockShapeHash = getShapeHash(block.shape);
+
+      if (
+        blockShapeHash === currentLevel.targetShapeHash &&
+        block.materialType === currentLevel.targetMaterialType
+      ) {
+        GameState.isLevelComplete = true;
+        GameState.highlightedWinShape = block;
+        break; // Level is won, no need to check other blocks
+      }
+    }
   });
+}
+
+/**
+ * Finds all solid brass blocks connected to a starting block.
+ * @param {RigidBody} startBlock - The newly created brass block.
+ * @returns {Set<RigidBody>} A set of all connected brass blocks.
+ */
+function findConnectedBrassBlocks(startBlock) {
+  const solidBlockMap = new Map();
+  for (const stone of GameState.stoneBlocks) {
+    for (const point of stone.shape) {
+      const key = `${stone.x + point.x},${stone.y + point.y}`;
+      solidBlockMap.set(key, stone);
+    }
+  }
+
+  const connectedBlocks = new Set();
+  const queue = [startBlock];
+  const visited = new Set([startBlock]);
+  const directions = [
+    { dx: 0, dy: 1 },
+    { dx: 0, dy: -1 },
+    { dx: 1, dy: 0 },
+    { dx: -1, dy: 0 },
+  ];
+
+  while (queue.length > 0) {
+    const currentBlock = queue.shift();
+    connectedBlocks.add(currentBlock);
+
+    for (const point of currentBlock.shape) {
+      const globalX = currentBlock.x + point.x;
+      const globalY = currentBlock.y + point.y;
+
+      for (const dir of directions) {
+        const nx = globalX + dir.dx;
+        const ny = globalY + dir.dy;
+        const neighborBlock = solidBlockMap.get(`${nx},${ny}`);
+
+        if (
+          neighborBlock &&
+          !visited.has(neighborBlock) &&
+          neighborBlock.materialType === "brass"
+        ) {
+          visited.add(neighborBlock);
+          queue.push(neighborBlock);
+        }
+      }
+    }
+  }
+  return connectedBlocks;
+}
+
+/**
+ * Merges a set of RigidBody objects into a single new one.
+ * @param {Set<RigidBody>} blocks - The set of blocks to merge.
+ */
+function mergeBlocks(blocks) {
+  let combinedPoints = [];
+  let minX = Infinity;
+  let minY = Infinity;
+
+  // Collect all points and remove the old blocks from the grid
+  for (const block of blocks) {
+    block.removeFromGrid();
+    for (const point of block.shape) {
+      const globalX = block.x + point.x;
+      const globalY = block.y + point.y;
+      combinedPoints.push({ x: globalX, y: globalY });
+      minX = Math.min(minX, globalX);
+      minY = Math.min(minY, globalY);
+    }
+  }
+
+  // Create the new normalized shape
+  const newShape = combinedPoints.map((p) => ({
+    x: p.x - minX,
+    y: p.y - minY,
+  }));
+
+  // Create the new merged block
+  const mergedBlock = new RigidBody(minX, minY, newShape, "brass");
+  mergedBlock.placeInGrid();
+
+  // Update the main game state array
+  GameState.stoneBlocks = GameState.stoneBlocks.filter((b) => !blocks.has(b));
+  GameState.stoneBlocks.push(mergedBlock);
 }
 
 export function clearCanvas() {

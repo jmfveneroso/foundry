@@ -44,7 +44,7 @@ function displaceWaterHorizontally(startX, startY) {
       destination = { x: nextX, y: startY };
       break;
     }
-    if (cellType !== Config.SAND) break; // Hit a solid
+    if (cellType !== Config.IRON_MOLTEN) break; // Hit a solid
     path.push({ x: nextX, y: startY });
   }
 
@@ -97,7 +97,7 @@ export function updateWaterShapes() {
 
   for (let y = 0; y < Config.GRID_HEIGHT; y++) {
     for (let x = 0; x < Config.GRID_WIDTH; x++) {
-      if (GameState.grid[y][x] === Config.SAND && !visited[y][x]) {
+      if (GameState.grid[y][x] === Config.IRON_MOLTEN && !visited[y][x]) {
         const shapeParticles = [];
         const queue = [{ x, y }];
         visited[y][x] = true;
@@ -111,7 +111,7 @@ export function updateWaterShapes() {
             if (
               isInBounds(nx, ny) &&
               !visited[ny][nx] &&
-              GameState.grid[ny][nx] === Config.SAND
+              GameState.grid[ny][nx] === Config.IRON_MOLTEN
             ) {
               visited[ny][nx] = true;
               queue.push({ x: nx, y: ny });
@@ -137,11 +137,11 @@ export function updateWaterShapes() {
             if (isInBounds(px, upY)) {
               // Check if it fell from directly above or diagonally above
               if (
-                GameState.prevGrid[upY][px] === Config.SAND ||
+                GameState.prevGrid[upY][px] === Config.IRON_MOLTEN ||
                 (isInBounds(px - 1, upY) &&
-                  GameState.prevGrid[upY][px - 1] === Config.SAND) ||
+                  GameState.prevGrid[upY][px - 1] === Config.IRON_MOLTEN) ||
                 (isInBounds(px + 1, upY) &&
-                  GameState.prevGrid[upY][px + 1] === Config.SAND)
+                  GameState.prevGrid[upY][px + 1] === Config.IRON_MOLTEN)
               ) {
                 isStable = false;
                 break;
@@ -255,7 +255,7 @@ export function enforceCommunicatingVessels() {
         possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
 
       // Execute the move
-      GameState.grid[move.to.y][move.to.x] = Config.SAND;
+      GameState.grid[move.to.y][move.to.x] = Config.IRON_MOLTEN;
       GameState.grid[move.from.y][move.from.x] = Config.EMPTY;
 
       // By making this move, the shape will become unstable for the next frame,
@@ -267,36 +267,46 @@ export function enforceCommunicatingVessels() {
 }
 
 export function updateSand(x, y) {
+  let material = GameState.grid[y][x];
   // --- WATER PHYSICS ---
   if (Config.waterMode) {
-    // 1. Gravity is the highest priority
     const down = y + 1;
+
+    // 1. Gravity is the highest priority
     if (isInBounds(x, down) && GameState.grid[down][x] === Config.EMPTY) {
       GameState.grid[y][x] = Config.EMPTY;
-      GameState.grid[down][x] = Config.SAND;
+      GameState.grid[down][x] = material;
       return;
     }
 
-    // 2. Diagonal flow is second priority
-    const dir = Math.random() < 0.5 ? 1 : -1;
+    // 2. Diagonal flow with gap prevention
+    const dir = Math.random() < 0.5 ? 1 : -1; // -1 for left, 1 for right
+
+    // Check first diagonal direction
+    let nextX1 = x + dir;
     if (
-      isInBounds(x + dir, down) &&
-      GameState.grid[down][x + dir] === Config.EMPTY
+      isInBounds(nextX1, down) &&
+      GameState.grid[down][nextX1] === Config.EMPTY && // Is the destination empty?
+      GameState.grid[y][nextX1] !== Config.STONE // *** Is the path to the side clear? ***
     ) {
       GameState.grid[y][x] = Config.EMPTY;
-      GameState.grid[down][x + dir] = Config.SAND;
-      return;
-    }
-    if (
-      isInBounds(x - dir, down) &&
-      GameState.grid[down][x - dir] === Config.EMPTY
-    ) {
-      GameState.grid[y][x] = Config.EMPTY;
-      GameState.grid[down][x - dir] = Config.SAND;
+      GameState.grid[down][nextX1] = material;
       return;
     }
 
-    // 3. Horizontal pressure flow (the new logic)
+    // Check other diagonal direction
+    let nextX2 = x - dir;
+    if (
+      isInBounds(nextX2, down) &&
+      GameState.grid[down][nextX2] === Config.EMPTY && // Is the destination empty?
+      GameState.grid[y][nextX2] !== Config.STONE // *** Is the path to the side clear? ***
+    ) {
+      GameState.grid[y][x] = Config.EMPTY;
+      GameState.grid[down][nextX2] = material;
+      return;
+    }
+
+    // 3. Horizontal pressure flow (no change needed here)
     displaceWaterHorizontally(x, y);
   }
   // --- SAND/CLAY PHYSICS ---
@@ -317,75 +327,56 @@ export function updateSand(x, y) {
     if (rightDiagCell) unsupported++;
     if (downCell && unsupported > Config.cohesion) {
       GameState.grid[y][x] = Config.EMPTY;
-      GameState.grid[down][x] = Config.SAND;
+      GameState.grid[down][x] = material;
       return;
     }
     if (Config.cohesion < 2) {
       const dir = Math.random() < 0.5 ? -1 : 1;
       if (leftDiagCell && dir === -1) {
         GameState.grid[y][x] = Config.EMPTY;
-        GameState.grid[down][x - 1] = Config.SAND;
+        GameState.grid[down][x - 1] = material;
       } else if (rightDiagCell && dir === 1) {
         GameState.grid[y][x] = Config.EMPTY;
-        GameState.grid[down][x + 1] = Config.SAND;
+        GameState.grid[down][x + 1] = material;
       }
     }
   }
 }
 
-export function addSand(evt) {
-  if (!Config.sandboxMode) {
-    const currentLevel = GameState.gameLevels[GameState.currentLevelIndex];
-    if (GameState.sandParticlesUsed >= currentLevel.maxSand) {
-      return; // Player is out of sand for this level
-    }
+export function addSandFromSpout(spoutBody) {
+  const material =
+    spoutBody.materialType === "brass"
+      ? Config.BRASS_MOLTEN
+      : Config.IRON_MOLTEN;
+
+  // Pour from the spout's current location
+  const x = spoutBody.x;
+  const y = spoutBody.y + 1;
+
+  if (isInBounds(x, y) && GameState.grid[y][x] === Config.EMPTY) {
+    GameState.grid[y][x] = material;
+    // No resource tracking in sandbox mode
   }
+}
 
-  let placedCount = 0;
+// This function now accepts the index of the spout that is pouring
+export function addSand(spoutIndex) {
+  const level = GameState.gameLevels[GameState.currentLevelIndex];
+  const spout = level.spouts[spoutIndex];
+  if (!spout) return;
 
-  const pos = getPointerPos(evt);
-  const gridX = Math.floor(pos.x / Config.cellSize);
-  const gridY = Math.floor(pos.y / Config.cellSize);
+  const isBrass = spout.material === "brass";
+  const material = isBrass ? Config.BRASS_MOLTEN : Config.IRON_MOLTEN;
 
-  // Check if single particle mode is active
-  if (Config.singleParticleCreation) {
-    // Place a single particle at the exact grid location
-    if (
-      isInBounds(gridX, gridY) &&
-      GameState.grid[gridY][gridX] === Config.EMPTY
-    ) {
-      GameState.grid[gridY][gridX] = Config.SAND;
-      placedCount = 1;
-    }
-  } else {
-    // Use the original "brush" logic for multi-particle creation
-    for (let i = -2; i <= 2; i++) {
-      for (let j = -2; j <= 2; j++) {
-        if (
-          !Config.sandboxMode &&
-          GameState.sandParticlesUsed + placedCount >= currentLevel.maxSand
-        )
-          break;
-        if (Math.random() > 0.5) {
-          const newX = gridX + i;
-          const newY = gridY + j;
-          if (
-            isInBounds(newX, newY) &&
-            GameState.grid[newY][newX] === Config.EMPTY
-          ) {
-            GameState.grid[newY][newX] = Config.SAND;
-            placedCount++;
-          }
-        }
-      }
-      if (
-        !Config.sandboxMode &&
-        GameState.sandParticlesUsed + placedCount >= currentLevel.maxSand
-      )
-        break;
-    }
+  // Use the spout's defined position
+  const x = spout.pos.x;
+  const y = spout.pos.y + 1;
+
+  if (isInBounds(x, y) && GameState.grid[y][x] === Config.EMPTY) {
+    GameState.grid[y][x] = material;
+    // Decrement the resource count for the specific spout
+    GameState.spoutResources[spoutIndex]--;
   }
-  GameState.sandParticlesUsed += placedCount;
 }
 
 /**
@@ -437,7 +428,7 @@ export function displaceSand(startX, startY, movingBody) {
         parentMap.set(key, current);
         queue.length = 0;
         break;
-      } else if (cellType === Config.SAND) {
+      } else if (cellType === Config.IRON_MOLTEN) {
         parentMap.set(key, current);
         queue.push({ x: nextX, y: nextY });
       }

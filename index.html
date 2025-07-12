@@ -25,15 +25,16 @@
       <span id="levelIndicator">Level: 1</span>
     </div>
 
-    <div id="metal-counter-display">
-      <span id="sandCounter">Sand: 0 / 0</span>
-    </div>
-
     <div id="controls">
       <div class="buttons">
         <button id="resetButton">Reset Level</button>
         <button id="stoneButton">Create Stone</button>
         <button id="solidifyButton">Solidify</button>
+        <button id="hammerButton">
+          Hammer <span id="hammerCounter">0</span>
+        </button>
+        <button id="editMoldButton">Draw</button>
+        <button id="addSpoutButton" class="hidden">Add Spout</button>
       </div>
     </div>
 
@@ -41,6 +42,30 @@
       <div class="screen-content">
         <h2>Level Complete!</h2>
         <button id="nextLevelButton">Next Level</button>
+      </div>
+    </div>
+
+    <div id="sandbox-tools" class="hidden">
+      <div class="spout-creator">
+        <h3>Add New Spout</h3>
+        <div>
+          <label for="spoutMat">Material:</label>
+          <select id="spoutMat">
+            <option value="iron">Iron</option>
+            <option value="brass">Brass</option>
+          </select>
+        </div>
+        <div>
+          <label for="spoutFlow">Flow:</label>
+          <input type="number" id="spoutFlow" value="3" min="1" />
+        </div>
+        <div>
+          <label for="spoutMax">Max Metal:</label>
+          <input type="number" id="spoutMax" value="50" min="1" />
+        </div>
+        <button id="createSpoutButton" class="major-action-btn">
+          Place Spout
+        </button>
       </div>
     </div>
 

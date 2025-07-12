@@ -20,7 +20,7 @@ body {
   border: 2px solid #555;
   background-color: #000;
   touch-action: none; /* Prevents default touch actions like scrolling */
-  margin-top: 120px;
+  margin-top: 100px;
 }
 #controls {
   margin-top: 10px;
@@ -229,7 +229,7 @@ input[type="range"] {
 
 #target-shape-display {
   position: absolute;
-  top: 50px;
+  top: 10px;
   right: 10px;
   background-color: rgba(0, 0, 0, 0.6);
   padding: 8px 12px;
@@ -299,8 +299,8 @@ input[type="range"] {
 /* Style for the top-left level display */
 #level-display {
   position: absolute;
-  top: 75px;
-  left: 30px;
+  top: 10px;
+  right: 140px;
   background-color: rgba(0, 0, 0, 0.6);
   padding: 10px 15px;
   border-radius: 5px;
@@ -311,55 +311,6 @@ input[type="range"] {
   pointer-events: none;
   z-index: 50;
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
-}
-
-/* Style for the molten metal counter, now centered */
-#metal-counter-display {
-  position: absolute;
-  top: 75px;
-  left: 50%; /* Center horizontally */
-  transform: translateX(-50%); /* Adjust for element width */
-  padding: 10px 15px;
-  background-color: rgba(0, 0, 0, 0.6);
-  border-radius: 5px;
-  font-family: sans-serif;
-  font-size: 14px;
-  font-weight: bold;
-  pointer-events: none;
-  z-index: 50;
-  color: #ffd700; /* Gold color, to match molten metal */
-  transition: color 0.3s ease-in-out;
-  /* Apply the new shimmer animation */
-  animation: shimmer 1.5s infinite linear;
-}
-
-/* UPDATE this class to also disable the animation and text-shadow */
-.counter-empty {
-  color: #808080 !important;
-  animation: none !important;
-  text-shadow: none !important;
-}
-
-/* ADD this keyframe animation for the shimmer effect */
-@keyframes shimmer {
-  0%,
-  100% {
-    color: #ffd700; /* Gold */
-    text-shadow: 0 0 7px #ff8c00; /* Orange glow */
-  }
-  50% {
-    color: #ffac4d; /* Tan */
-    text-shadow: 0 0 10px #ff4500; /* Red-orange glow */
-  }
-}
-7
-/* Style for the sand counter when it's empty */
-.counter-empty {
-  color: #ff4d4d; /* A bright, urgent red */
-  transform: scale(1.05); /* Make it slightly larger */
-  transition:
-    color 0.3s,
-    transform 0.3s;
 }
 
 .slider-container label {
@@ -441,4 +392,83 @@ input[type="range"] {
 
 #level-complete-screen button:hover {
   background-color: #218838;
+}
+
+#gameCanvas.hammer-cursor {
+  cursor: crosshair;
+}
+
+#hammerButton {
+  background-color: #6f4e37; /* A woody brown color */
+  border: 1px solid #a07a5f;
+  font-size: 18px;
+  min-width: 80px; /* Give it some space */
+}
+
+#hammerButton.active {
+  box-shadow: 0 0 10px 3px #ffe57a; /* Glow when active */
+  border-color: #ffe57a;
+}
+
+#hammerButton.disabled {
+  background-color: #555 !important;
+  border-color: #444 !important;
+  color: #888 !important;
+  cursor: not-allowed !important;
+}
+
+#editMoldButton {
+  background-color: #376f6f;
+  border: 1px solid #5fa0a0;
+  font-size: 18px;
+}
+
+#editMoldButton.active {
+  background-color: #4dc2c2;
+  box-shadow: 0 0 10px 3px #a7ffff;
+  border-color: #a7ffff;
+}
+
+#editMoldButton,
+#addSpoutButton {
+  font-size: 18px;
+}
+
+#editMoldButton.active,
+#addSpoutButton.active {
+  box-shadow: 0 0 10px 3px #a7ffff;
+  border-color: #a7ffff;
+}
+
+/* Styles for the spout creator UI in the controls panel */
+#sandbox-tools {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #555;
+}
+
+.spout-creator h3 {
+  margin: 0 0 15px 0;
+  text-align: center;
+}
+
+.spout-creator div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.spout-creator label {
+  font-weight: bold;
+}
+
+.spout-creator input,
+.spout-creator select {
+  width: 120px;
+  padding: 5px;
+  background-color: #333;
+  color: white;
+  border: 1px solid #555;
+  border-radius: 3px;
 }

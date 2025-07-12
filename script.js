@@ -1,6 +1,12 @@
 import { Config } from "./config.js";
 import { GameState } from "./game_state.js";
-import { createEmptyGrid, drawGrid, updateGrid } from "./grid.js";
+import {
+  createEmptyGrid,
+  drawGrid,
+  updateGrid,
+  drawSpouts,
+  isInBounds,
+} from "./grid.js";
 import {
   clearCanvas,
   canvas,
@@ -13,13 +19,16 @@ import {
   enforceCommunicatingVessels,
   drawWaterShapeDebug,
   updateWaterShapes,
+  addSand,
+  addSandFromSpout,
 } from "./sand.js";
 import { loadLevelsFromFile } from "./level_parser.js";
 import { RigidBody } from "./rigid_body.js";
 
 // Get a reference to the counter and button elements
 const particleCounterElement = document.getElementById("rigidParticleCounter");
-const sandCounterElement = document.getElementById("sandCounter");
+const ironCounterElement = document.getElementById("ironCounter");
+const brassCounterElement = document.getElementById("brassCounter");
 const levelCompleteScreen = document.getElementById("level-complete-screen");
 const levelIndicatorElement = document.getElementById("levelIndicator");
 const nextLevelButton = document.getElementById("nextLevelButton");
@@ -28,8 +37,92 @@ const targetShapeCtx = targetShapeCanvas.getContext("2d");
 const targetShapeDisplay = document.getElementById("target-shape-display");
 const levelDisplay = document.getElementById("level-display");
 const metalCounterDisplay = document.getElementById("metal-counter-display");
+const hammerButton = document.getElementById("hammerButton");
+const hammerCounterElement = document.getElementById("hammerCounter");
 
-function drawTargetShape(shape) {
+// Add new UI element references
+const editMoldButton = document.getElementById("editMoldButton");
+const addSpoutButton = document.getElementById("addSpoutButton");
+const sandboxTools = document.getElementById("sandbox-tools");
+
+function finalizeDrawnMolds() {
+  const visited = new Array(Config.GRID_HEIGHT)
+    .fill(0)
+    .map(() => new Array(Config.GRID_WIDTH).fill(false));
+  const directions = [
+    { dx: 0, dy: 1 },
+    { dx: 0, dy: -1 },
+    { dx: 1, dy: 0 },
+    { dx: -1, dy: 0 },
+  ];
+
+  for (let y = 0; y < Config.GRID_HEIGHT; y++) {
+    for (let x = 0; x < Config.GRID_WIDTH; x++) {
+      if (GameState.grid[y][x] === Config.PREVIEW_MOLD && !visited[y][x]) {
+        // Found a new, unvisited blueprint piece. Find all connected pieces.
+        const foundParticles = [];
+        const queue = [{ x, y }];
+        visited[y][x] = true;
+        let minX = x,
+          minY = y;
+
+        while (queue.length > 0) {
+          const current = queue.shift();
+          foundParticles.push(current);
+          minX = Math.min(minX, current.x);
+          minY = Math.min(minY, current.y);
+
+          for (const dir of directions) {
+            const nx = current.x + dir.dx;
+            const ny = current.y + dir.dy;
+            if (
+              isInBounds(nx, ny) &&
+              !visited[ny][nx] &&
+              GameState.grid[ny][nx] === Config.PREVIEW_MOLD
+            ) {
+              visited[ny][nx] = true;
+              queue.push({ x: nx, y: ny });
+            }
+          }
+        }
+
+        // Erase the blueprint tiles from the grid
+        for (const p of foundParticles) {
+          GameState.grid[p.y][p.x] = Config.EMPTY;
+        }
+
+        // Create the new static mold from the shape
+        const shape = foundParticles.map((p) => ({
+          x: p.x - minX,
+          y: p.y - minY,
+        }));
+        const newBlock = new RigidBody(minX, minY, shape, "iron", true); // Create as static iron
+        GameState.stoneBlocks.push(newBlock);
+        newBlock.placeInGrid();
+      }
+    }
+  }
+}
+
+function resetSandbox() {
+  // Find all blocks that are NOT spouts and remove them from the grid
+  const blocksToRemove = GameState.stoneBlocks.filter(
+    (block) => !block.isSpout
+  );
+  for (const block of blocksToRemove) {
+    block.removeFromGrid();
+  }
+
+  // Update the main list of blocks to only contain the spouts
+  GameState.stoneBlocks = GameState.stoneBlocks.filter(
+    (block) => block.isSpout
+  );
+
+  // Clear all molten metal from the grid
+  GameState.grid = createEmptyGrid();
+}
+
+function drawTargetShape(shape, materialType) {
   if (!shape || shape.length === 0) {
     targetShapeDisplay.classList.add("hidden");
     return;
@@ -46,7 +139,11 @@ function drawTargetShape(shape) {
   targetShapeCanvas.height = height * cellSize;
 
   // Use the sand color for the preview to indicate what to create
-  targetShapeCtx.fillStyle = Config.colors[Config.SAND];
+  if (materialType === "brass") {
+    targetShapeCtx.fillStyle = Config.colors[Config.BRASS_SOLID];
+  } else {
+    targetShapeCtx.fillStyle = Config.colors[Config.STONE]; // Default to iron
+  }
 
   for (const point of shape) {
     targetShapeCtx.fillRect(
@@ -84,17 +181,34 @@ function loadSandbox() {
   // Reset the game state for a clean sandbox environment
   GameState.grid = createEmptyGrid();
   GameState.stoneBlocks = [];
-  GameState.sandParticlesUsed = 0;
+  GameState.ironParticlesUsed = 0;
+  GameState.brassParticlesUsed = 0;
   GameState.isLevelComplete = false;
   GameState.highlightedWinShape = null;
   GameState.isGameWon = false;
   GameState.isLevelLost = false;
-  if (GameState.activeHammer) GameState.activeHammer.removeFromGrid();
-  GameState.activeHammer = null;
+  GameState.spoutResources = [];
+  GameState.spoutFlowStates = [];
+
+  // --- Create Draggable Spouts for Sandbox ---
+  const spoutShape = [{ x: 0, y: 0 }]; // 1x1 shape for all spouts
+
+  const ironSpout = new RigidBody(4, 1, spoutShape, "iron", false);
+  ironSpout.isSpout = true;
+
+  const brassSpout = new RigidBody(15, 1, spoutShape, "brass", false);
+  brassSpout.isSpout = true;
+
+  GameState.stoneBlocks.push(ironSpout, brassSpout);
+  ironSpout.placeInGrid();
+  brassSpout.placeInGrid();
 
   drawTargetShape(null);
 
   stoneButton.classList.remove("hidden");
+  editMoldButton.classList.remove("hidden");
+  addSpoutButton.classList.remove("hidden");
+  sandboxTools.classList.remove("hidden");
 }
 
 function loadLevel(levelIndex) {
@@ -115,36 +229,54 @@ function loadLevel(levelIndex) {
   }
 
   stoneButton.classList.add("hidden");
+  editMoldButton.classList.add("hidden");
+  addSpoutButton.classList.add("hidden");
+  sandboxTools.classList.add("hidden");
 
   GameState.currentLevelIndex = levelIndex;
 
   // Reset state for the new level
   GameState.grid = createEmptyGrid();
   GameState.stoneBlocks = [];
-  GameState.sandParticlesUsed = 0;
+  GameState.ironParticlesUsed = 0;
+  GameState.brassParticlesUsed = 0;
   GameState.isLevelComplete = false;
   GameState.highlightedWinShape = null;
   GameState.isGameWon = false;
   GameState.isLevelLost = false;
+  GameState.hammerUsesLeft = levelData.maxHammers || 0; // Initialize hammer uses
   if (GameState.activeHammer) GameState.activeHammer.removeFromGrid();
   GameState.activeHammer = null;
 
+  // Initialize the new spout state arrays based on level data
+  GameState.spoutResources = levelData.spouts.map((spout) => spout.max);
+  GameState.spoutFlowStates = levelData.spouts.map(() => ({
+    isFlowing: false,
+    toPour: 0,
+  }));
+
   // Create and drop the starting molds for the level
   levelData.startingMolds.forEach((mold) => {
-    const newBlock = new RigidBody(mold.x, mold.y, mold.shape);
+    const newBlock = new RigidBody(
+      mold.x,
+      mold.y,
+      mold.shape,
+      mold.materialType,
+      mold.isStatic
+    );
     GameState.stoneBlocks.push(newBlock);
     newBlock.placeInGrid();
   });
 
-  drawTargetShape(levelData.targetShape);
+  drawTargetShape(levelData.targetShape, levelData.targetMaterialType);
 }
 
 function updateCounters() {
   // Adjust UI based on the current mode
   if (Config.sandboxMode) {
-    levelDisplay.style.display = "none"; // Hide level info in sandbox mode
-    metalCounterDisplay.classList.remove("counter-empty");
-    sandCounterElement.textContent = `Metal Used: ${GameState.sandParticlesUsed}`;
+    levelDisplay.style.display = "none";
+    hammerCounterElement.textContent = "-"; // Show infinity symbol
+    hammerButton.classList.remove("disabled"); // Ensure button is always enabled
     return;
   }
 
@@ -155,20 +287,18 @@ function updateCounters() {
   if (!currentLevel || GameState.isGameWon) return;
 
   levelIndicatorElement.textContent = `Level: ${currentLevel.level}`;
-  sandCounterElement.textContent = `Metal: ${GameState.sandParticlesUsed} / ${currentLevel.maxSand}`;
 
-  // Add or remove the 'counter-empty' class from the container
-  if (GameState.sandParticlesUsed >= currentLevel.maxSand) {
-    metalCounterDisplay.classList.add("counter-empty");
-  } else {
-    metalCounterDisplay.classList.remove("counter-empty");
-  }
+  // Update Hammer Counter
+  const hammersLeft = GameState.hammerUsesLeft;
+  hammerCounterElement.textContent = hammersLeft;
+  hammerButton.classList.toggle("disabled", hammersLeft <= 0);
 
-  let rigidParticleCount = 0;
-  for (const block of GameState.stoneBlocks) {
-    rigidParticleCount += block.shape.length;
+  // If hammer is active but runs out, deactivate it
+  if (GameState.isHammerActive && hammersLeft <= 0) {
+    GameState.isHammerActive = false;
+    canvas.classList.remove("hammer-cursor");
+    hammerButton.classList.remove("active");
   }
-  // particleCounterElement.textContent = `Solid Particles: ${rigidParticleCount}`;
 }
 
 function update() {
@@ -182,7 +312,8 @@ function update() {
   let isSandOnGrid = false;
   for (let y = 0; y < Config.GRID_HEIGHT; y++) {
     for (let x = 0; x < Config.GRID_WIDTH; x++) {
-      if (GameState.grid[y][x] === Config.SAND) {
+      const cell = GameState.grid[y][x];
+      if (cell === Config.IRON_MOLTEN || cell === Config.BRASS_MOLTEN) {
         isSandOnGrid = true;
         break;
       }
@@ -211,12 +342,13 @@ function update() {
 
     // Check for loss condition
     const currentLevel = GameState.gameLevels[GameState.currentLevelIndex];
-    if (GameState.sandParticlesUsed >= currentLevel.maxSand) {
+    const allResourcesUsed = GameState.spoutResources.every((res) => res <= 0);
+    if (allResourcesUsed) {
       let sandOnGrid = false;
       // Scan the grid to see if any molten metal remains
       for (let y = 0; y < Config.GRID_HEIGHT; y++) {
         for (let x = 0; x < Config.GRID_WIDTH; x++) {
-          if (GameState.grid[y][x] === Config.SAND) {
+          if (GameState.grid[y][x] === Config.IRON_MOLTEN) {
             sandOnGrid = true;
             break; // Found sand, so the game is not lost yet
           }
@@ -235,7 +367,7 @@ function update() {
 
   for (let i = GameState.stoneBlocks.length - 1; i >= 0; i--) {
     const block = GameState.stoneBlocks[i];
-    if (block === GameState.draggedStone) {
+    if (block === GameState.draggedStone || block.isStatic || block.isSpout) {
       continue;
     }
     block.moveDown();
@@ -247,10 +379,22 @@ function update() {
     updateWaterShapes();
     enforceCommunicatingVessels();
   }
+
+  // --- Handle Spout Flow ---
+  if (GameState.spoutFlowStates.length > 0) {
+    GameState.spoutFlowStates.forEach((state, index) => {
+      if (state.isFlowing && state.toPour > 0) {
+        addSand(index);
+        state.toPour--;
+        if (state.toPour <= 0) state.isFlowing = false;
+      }
+    });
+  }
 }
 
 function draw() {
   clearCanvas();
+  drawSpouts(ctx);
   drawGrid();
 
   // Draw stone blocks and highlight the winning one if applicable
@@ -284,6 +428,18 @@ function draw() {
     ctx.textAlign = "center";
     ctx.fillText("YOU LOSE", canvas.width / 2, canvas.height / 2);
   }
+
+  // Draw spout placement preview
+  if (GameState.isPlacingSpout && GameState.pendingSpout) {
+    const pos = GameState.mouseGridPos;
+    if (pos) {
+      const previewSpout = {
+        ...GameState.pendingSpout,
+        pos: { x: pos.gridX, y: pos.gridY },
+      };
+      drawSpoutUI(ctx, previewSpout, { isFlowing: true }, previewSpout.max, []);
+    }
+  }
 }
 
 function gameLoop(currentTime = 0) {
@@ -301,6 +457,33 @@ function gameLoop(currentTime = 0) {
 }
 
 async function init() {
+  // --- Add Listeners for Spout Creator ---
+  const createSpoutButton = document.getElementById("createSpoutButton");
+  const spoutMat = document.getElementById("spoutMat");
+  const spoutFlow = document.getElementById("spoutFlow");
+  const spoutMax = document.getElementById("spoutMax");
+
+  addSpoutButton.addEventListener("click", () => {
+    // This button can toggle the visibility of the creator panel for a cleaner UI
+    sandboxTools.classList.toggle("hidden");
+  });
+
+  createSpoutButton.addEventListener("click", () => {
+    GameState.pendingSpout = {
+      material: spoutMat.value,
+      flow: parseInt(spoutFlow.value, 10) || 1,
+      max: parseInt(spoutMax.value, 10) || 10,
+      pos: { x: 0, y: 0 },
+    };
+    GameState.isPlacingSpout = true;
+    canvas.classList.add("hammer-cursor"); // Re-use crosshair cursor for placement
+    controlsPanel.classList.add("hidden");
+  });
+
+  canvas.addEventListener("mousemove", (e) => {
+    GameState.mouseGridPos = getGridPos(e);
+  });
+
   // Make init async to await the level loading
   GameState.gameLevels = await loadLevelsFromFile();
 
@@ -323,7 +506,11 @@ async function init() {
 
   // Wire up level progression buttons
   document.getElementById("resetButton").addEventListener("click", () => {
-    loadLevel(GameState.currentLevelIndex);
+    if (Config.sandboxMode) {
+      resetSandbox();
+    } else {
+      loadLevel(GameState.currentLevelIndex);
+    }
   });
   nextLevelButton.addEventListener("click", () => {
     loadLevel(GameState.currentLevelIndex + 1);
@@ -336,6 +523,35 @@ async function init() {
     } else {
       // When turning sandbox off, return to the first level
       loadLevel(0);
+    }
+  });
+
+  // Add event listener for the hammer button
+  hammerButton.addEventListener("click", () => {
+    // In level mode, check if uses are left. In sandbox, always allow.
+    if (!Config.sandboxMode && GameState.hammerUsesLeft <= 0) {
+      GameState.isHammerActive = false;
+      return;
+    }
+    // Toggle hammer mode
+    GameState.isHammerActive = !GameState.isHammerActive;
+    canvas.classList.toggle("hammer-cursor", GameState.isHammerActive);
+    hammerButton.classList.toggle("active", GameState.isHammerActive);
+  });
+
+  editMoldButton.addEventListener("click", () => {
+    GameState.isMoldEditorActive = !GameState.isMoldEditorActive; // Toggle the mode
+
+    if (GameState.isMoldEditorActive) {
+      // Entering edit mode
+      resetSandbox(); // Clear the board for drawing
+      editMoldButton.textContent = "Finish";
+      editMoldButton.classList.add("active");
+    } else {
+      // Exiting edit mode
+      finalizeDrawnMolds(); // Turn the blueprint into solid molds
+      editMoldButton.textContent = "Draw";
+      editMoldButton.classList.remove("active");
     }
   });
 

@@ -4,10 +4,13 @@ import { isInBounds } from "./grid.js";
 import { displaceSand } from "./sand.js";
 
 export class RigidBody {
-  constructor(x, y, shape) {
+  constructor(x, y, shape, materialType = "iron", isStatic = false) {
     this.x = x;
     this.y = y;
     this.shape = shape;
+    this.materialType = materialType;
+    this.isStatic = isStatic;
+    this.isSpout = false;
 
     if (shape.length > 0) {
       const xs = shape.map((p) => p.x);
@@ -32,29 +35,70 @@ export class RigidBody {
           Config.cellSize
         );
       }
-    } else {
-      // --- Draw the new shiny metal look ---
-      const highlightColor = "#c0c0c0"; // Light silver
-      const baseColor = "#808080"; // Medium gray
-      const shadowColor = "#404040"; // Dark gray
-
+    } else if (this.isStatic) {
+      // --- Draw a distinct look for static blocks (e.g., darker) ---
+      const baseColor = "#4a4a4a"; // Darker base for static blocks
+      const shadowColor = "#222";
       for (const point of this.shape) {
         const canvasX = (this.x + point.x) * Config.cellSize;
         const canvasY = (this.y + point.y) * Config.cellSize;
-
-        // Create a top-left to bottom-right gradient for each tile
         const gradient = ctx.createLinearGradient(
           canvasX,
           canvasY,
           canvasX + Config.cellSize,
           canvasY + Config.cellSize
         );
-        gradient.addColorStop(0, highlightColor);
-        gradient.addColorStop(0.5, baseColor);
+        gradient.addColorStop(0, baseColor);
         gradient.addColorStop(1, shadowColor);
-
         ctx.fillStyle = gradient;
         ctx.fillRect(canvasX, canvasY, Config.cellSize, Config.cellSize);
+      }
+    } else {
+      if (this.materialType === "brass") {
+        // --- Draw the new shiny BRASS look ---
+        const highlightColor = "#f5f5dc"; // Beige
+        const baseColor = "#d2b48c"; // Tan
+        const shadowColor = "#8b4513"; // SaddleBrown
+        for (const point of this.shape) {
+          // ... (gradient drawing logic as before, but with brass colors) ...
+          const canvasX = (this.x + point.x) * Config.cellSize;
+          const canvasY = (this.y + point.y) * Config.cellSize;
+          const gradient = ctx.createLinearGradient(
+            canvasX,
+            canvasY,
+            canvasX + Config.cellSize,
+            canvasY + Config.cellSize
+          );
+          gradient.addColorStop(0, highlightColor);
+          gradient.addColorStop(0.5, baseColor);
+          gradient.addColorStop(1, shadowColor);
+          ctx.fillStyle = gradient;
+          ctx.fillRect(canvasX, canvasY, Config.cellSize, Config.cellSize);
+        }
+      } else {
+        // --- Draw the new shiny metal look ---
+        const highlightColor = "#c0c0c0"; // Light silver
+        const baseColor = "#808080"; // Medium gray
+        const shadowColor = "#404040"; // Dark gray
+
+        for (const point of this.shape) {
+          const canvasX = (this.x + point.x) * Config.cellSize;
+          const canvasY = (this.y + point.y) * Config.cellSize;
+
+          // Create a top-left to bottom-right gradient for each tile
+          const gradient = ctx.createLinearGradient(
+            canvasX,
+            canvasY,
+            canvasX + Config.cellSize,
+            canvasY + Config.cellSize
+          );
+          gradient.addColorStop(0, highlightColor);
+          gradient.addColorStop(0.5, baseColor);
+          gradient.addColorStop(1, shadowColor);
+
+          ctx.fillStyle = gradient;
+          ctx.fillRect(canvasX, canvasY, Config.cellSize, Config.cellSize);
+        }
       }
     }
 
@@ -204,7 +248,7 @@ export class RigidBody {
       const checkY = newGridY + point.y;
       if (
         isInBounds(checkX, checkY) &&
-        GameState.grid[checkY][checkX] === Config.SAND
+        GameState.grid[checkY][checkX] === Config.IRON_MOLTEN
       ) {
         particlesToDisplace.push({ x: checkX, y: checkY });
       }
@@ -296,7 +340,7 @@ export class RigidBody {
           if (
             isInBounds(nx, ny) &&
             !visited.has(key) &&
-            GameState.grid[ny][nx] === Config.SAND
+            GameState.grid[ny][nx] === Config.IRON_MOLTEN
           ) {
             visited.add(key);
             queue.push({ x: nx, y: ny });
@@ -307,5 +351,84 @@ export class RigidBody {
     return emptySlotsFound < initialParticles.length
       ? Infinity
       : displacedCount;
+  }
+
+  // Add this new method to the end of the RigidBody class
+  destroyTile(localPoint) {
+    // 1. Create a new shape array without the destroyed point
+    const remainingPoints = this.shape.filter(
+      (p) => p.x !== localPoint.x || p.y !== localPoint.y
+    );
+
+    // 2. Remove the original block from the game
+    this.removeFromGrid();
+    GameState.stoneBlocks = GameState.stoneBlocks.filter((b) => b !== this);
+
+    if (remainingPoints.length === 0) {
+      return; // Block is completely destroyed
+    }
+
+    // 3. Find all new "islands" of connected points
+    const visited = new Set();
+    const newBlockShapes = [];
+
+    for (const point of remainingPoints) {
+      const pointKey = `${point.x},${point.y}`;
+      if (visited.has(pointKey)) continue;
+
+      const componentPoints = [];
+      const queue = [point];
+      visited.add(pointKey);
+
+      while (queue.length > 0) {
+        const currentPoint = queue.shift();
+        componentPoints.push(currentPoint);
+
+        const neighbors = [
+          { x: currentPoint.x, y: currentPoint.y - 1 },
+          { x: currentPoint.x, y: currentPoint.y + 1 },
+          { x: currentPoint.x - 1, y: currentPoint.y },
+          { x: currentPoint.x + 1, y: currentPoint.y },
+        ];
+
+        for (const neighbor of neighbors) {
+          const neighborKey = `${neighbor.x},${neighbor.y}`;
+          if (
+            !visited.has(neighborKey) &&
+            remainingPoints.some(
+              (p) => p.x === neighbor.x && p.y === neighbor.y
+            )
+          ) {
+            visited.add(neighborKey);
+            queue.push(neighbor);
+          }
+        }
+      }
+      newBlockShapes.push(componentPoints);
+    }
+
+    // 4. Create new RigidBody objects for each resulting fragment
+    for (const shapeComponent of newBlockShapes) {
+      const minX = Math.min(...shapeComponent.map((p) => p.x));
+      const minY = Math.min(...shapeComponent.map((p) => p.y));
+
+      const normalizedShape = shapeComponent.map((p) => ({
+        x: p.x - minX,
+        y: p.y - minY,
+      }));
+
+      const newBlockX = this.x + minX;
+      const newBlockY = this.y + minY;
+
+      const newBlock = new RigidBody(
+        newBlockX,
+        newBlockY,
+        normalizedShape,
+        this.materialType,
+        this.isStatic
+      );
+      GameState.stoneBlocks.push(newBlock);
+      newBlock.placeInGrid();
+    }
   }
 }

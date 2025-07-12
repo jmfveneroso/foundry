@@ -1,3 +1,6 @@
+import { Config } from "./config.js";
+import { GameState } from "./game_state.js";
+
 /**
  * Normalizes a shape's points to be relative to a (0,0) origin
  * and creates a consistent, sort-based hash string.

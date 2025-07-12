@@ -1,5 +1,11 @@
 === LEVEL: 1
 
+Spouts:
+Material: iron
+Pos: 2, 4
+Flow: 15
+Max: 15
+
 Molds:
 xxxxx
 xxxxx
@@ -13,11 +19,15 @@ xxx
 xxx
 xxx
 xxx
-
-MaxMoltenMetal: 15
 
 === LEVEL: 2
 
+Spouts:
+Material: iron
+Pos: 2, 4
+Flow: 1
+Max: 5
+
 Molds:
 xxxx
 xxxx
@@ -30,11 +40,15 @@ xx
 Target:
 xx
 xxx
-
-MaxMoltenMetal: 5
 
 === LEVEL: 3
 
+Spouts:
+Material: iron
+Pos: 2, 4
+Flow: 1
+Max: 10
+
 Molds:
 x
 x
@@ -49,26 +63,14 @@ xxx
  x
  x
  x
-
-MaxMoltenMetal: 10
 
 === LEVEL: 4
 
-Molds:
-x
-xx
-xxx
-
-Target:
-xx
- xx
-  xx
-   xx
-    xx
-
-MaxMoltenMetal: 21
-
-=== LEVEL: 5
+Spouts:
+Material: iron
+Pos: 2, 4
+Flow: 1
+Max: 24
 
 Molds:
 xx
@@ -83,9 +85,50 @@ x   x
 x   x
 xx xx
 
-MaxMoltenMetal: 24
+=== LEVEL: 5
+
+Spouts:
+Material: iron
+Pos: 2, 4
+Flow: 1
+Max: 24
+
+Molds:
+xx
+xx
+
+Target:
+xxxx
+xxxx
+  xxxx
+  xxxx
 
 === LEVEL: 6
+
+Spouts:
+Material: iron
+Pos: 2, 4
+Flow: 1
+Max: 25
+
+Molds:
+xx
+xx
+
+Target:
+x  x
+x  x
+xxxx
+x  x
+x  x
+
+=== LEVEL: 7
+
+Spouts:
+Material: iron
+Pos: 2, 4
+Flow: 1
+Max: 31
 
 Molds:
 xx
@@ -98,39 +141,34 @@ xxxxx
   x 
   x
 
-MaxMoltenMetal: 31
-
-=== LEVEL: 7
-
-Molds:
-xx
-xx
-
-Target:
-xxxx
-xxxx
-  xxxx
-  xxxx
-
-MaxMoltenMetal: 28
-
 === LEVEL: 8
 
-Molds:
-xx
+Spouts:
+Material: iron
+Pos: 2, 4
+Flow: 1
+Max: 21
 
+Molds:
+x
 xx
+xxx
 
 Target:
-   x
-  xxx
- xxxxx
-xxxxxxx
-
-MaxMoltenMetal: 35
+xx
+ xx
+  xx
+   xx
+    xx
 
 === LEVEL: 9
 
+Spouts:
+Material: iron
+Pos: 2, 4
+Flow: 1
+Max: 28
+
 Molds:
 xx
 
@@ -141,11 +179,258 @@ Target:
   xxx
  xxxxx
 xxxxxxx
-   x
-
-MaxMoltenMetal: 44
 
 === LEVEL: 10
+
+Spouts:
+Material: iron
+Pos: 2, 4
+Flow: 1
+Max: 33
+
+Molds:
+x
+xx
+
+ x
+xx
+
+Target:
+   x
+  xxx
+ xxxxx
+xxxxxxx
+   x
+
+=== LEVEL: 11
+
+Spouts:
+Material: iron
+Pos: 2, 4
+Flow: 1
+Max: 32
+
+Molds:
+   xx
+ xxxx
+ x
+xx
+ x
+ x
+
+Target:
+xxxx
+x  x
+   x
+xxxx
+x
+x  x
+xxxx
+
+=== LEVEL: 12
+
+Spouts:
+Material: iron
+Pos: 2, 4
+Flow: 1
+Max: 28
+
+Molds:
+  x
+x x
+xxx
+
+ x
+xx
+
+Target:
+xxxxxxx
+x     x
+x x x x
+xxx xxx
+
+=== LEVEL: 13
+
+Spouts:
+Material: iron
+Pos: 2, 4
+Flow: 1
+Max: 200
+
+Molds:
+xxx
+xxx
+
+Target:
+xxxxxxxxx
+x       x
+x x   x x
+x x   x x
+  xxxxxxx
+x x   x x
+x x   x x
+x       x
+xxxxxxxxx
+
+=== LEVEL: 14
+
+Spouts:
+Material: iron
+Pos: 2, 4
+Flow: 1
+Max: 42
+
+Molds:
+// pos: 2, 8
+xxxxx
+xxxxx
+xxxxx
+xxxxx
+xxxxx
+
+xxxxx
+xxxxx
+xxxxx
+xxxxx
+xxxxx
+
+xxxxx
+xxxxx
+xxxxx
+xxxxx
+xxxxx
+
+xxxxx
+xxxxx
+xxxxx
+xxxxx
+ xxxx
+
+Target:
+     x
+     x
+     x
+     x
+     x
+xxxxxxxxxxx
+     x
+     x
+     x
+     x
+     x
+
+=== LEVEL: 15
+
+Spouts:
+Material: iron
+Pos: 2, 4
+Flow: 1
+Max: 27
+
+Molds:
+// pos: 2, 8
+xxxx
+
+Target:
+xxxxxxxxx
+xxxxx   x
+x       x
+x       x
+x       x
+
+=== LEVEL: 16
+
+Spouts:
+Material: iron
+Pos: 2, 4
+Flow: 1
+Max: 20
+
+Molds:
+
+Target:
+xxxx
+   x
+ x x
+xxxx
+
+=== LEVEL: 17
+
+Spouts:
+Material: iron
+Pos: 2, 4
+Flow: 1
+Max: 5
+
+Molds:
+
+Target:
+x
+x
+x
+
+=== LEVEL: 18
+
+Spouts:
+Material: iron
+Pos: 2, 4
+Flow: 1
+Max: 29
+
+Molds:
+// pos: 0, 8
+xx
+ x
+xx
+
+Target:
+xxxx
+   x
+   x
+   x
+   x
+   x
+xxxx
+
+=== LEVEL: 19
+
+Spouts:
+Material: iron
+Pos: 2, 4
+Flow: 1
+Max: 30
+
+Molds:
+ xx
+xx
+
+ xx
+xx
+
+xxx
+ x
+ x
+ x
+
+xxx
+ x
+ x
+ x
+
+Target:
+xx xx
+x   x
+x   x
+x   x
+xxxxx
+
+=== LEVEL: 20
+
+Spouts:
+Material: iron
+Pos: 2, 4
+Flow: 1
+Max: 60
 
 Molds:
 xx
@@ -159,4 +444,45 @@ xxxx x
      x
 xxxxxx
 
-MaxMoltenMetal: 60
+MaxIron: 60
+
+
+=== LEVEL: 21
+
+Spouts:
+Material: iron
+Pos: 8, 3
+Flow: 3
+Max: 50
+
+Material: iron
+Pos: 12, 3
+Flow: 5
+Max: 20
+
+Material: brass
+Pos: 5, 2
+Flow: 5
+Max: 60
+
+Molds:
+// pos: 0, 8; static
+xx
+ x
+xx
+
+xx
+xx
+
+xx
+xx
+
+// pos: 0, 15
+ b
+bb
+
+Target:
+bb
+bb
+
+MaxHammers: 5
