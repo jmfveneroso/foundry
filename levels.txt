@@ -1,17 +1,29 @@
-=== LEVEL: 1
+=== Tutorial 1: Pouring Iron
 
 Spouts:
 Material: iron
-Pos: 2, 4
+Pos: 10, 4
 Flow: 15
 Max: 15
 
 Molds:
-xxxxx
-xxxxx
-xxxxx
-xxxxx
-xxxxx
+
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxxxx
+
+// pos: 7, 24; static
+xx
+xx
+xx
+xx
+xx
+
+// pos: 12, 24; static
+xx
+xx
+xx
+xx
+xx
 
 Target:
 xxx
@@ -20,33 +32,109 @@ xxx
 xxx
 xxx
 
-=== LEVEL: 2
+=== Tutorial 2: Moving molds
 
 Spouts:
 Material: iron
-Pos: 2, 4
-Flow: 1
-Max: 5
+Pos: 10, 4
+Flow: 15
+Max: 15
 
 Molds:
-xxxx
-xxxx
-xxxx
-xxxx
-
 xx
- x
+xx 
+xx
+xx 
+xx
+
+
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxxxx
+
+// pos: 7, 24; static
+xx
+xx
+xx
+xx
+xx
 
 Target:
-xx
+xxx
+xxx
+xxx
+xxx
 xxx
 
-=== LEVEL: 3
+=== Tutorial 3: Making molds
 
 Spouts:
 Material: iron
-Pos: 2, 4
-Flow: 1
+Pos: 10, 4
+Flow: 3
+Max: 12
+
+Molds:
+x  x
+x xx
+xxxx
+
+// pos: 0, 29; static
+ xxxxxxxxxxxxxxxxxxx
+
+Target:
+ x
+xx
+xx
+x
+
+=== Tutorial 4: Go with the flow
+
+Spouts:
+Material: iron
+Pos: 5, 4
+Flow: 5
+Max: 5
+
+Spouts:
+Material: iron
+Pos: 10, 4
+Flow: 6
+Max: 6
+
+Spouts:
+Material: iron
+Pos: 15, 4
+Flow: 9
+Max: 9
+
+Molds:
+xx x 
+x  x
+x  x
+xx x
+xxxx
+
+x  x
+x xx
+x xx
+x xx
+xxxx
+
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxxxx
+
+Target:
+ xx
+xx
+xx
+xxx
+
+=== Tutorial 5: Letter T
+
+Spouts:
+Material: iron
+Pos: 1, 4
+Flow: 2
 Max: 10
 
 Molds:
@@ -58,24 +146,39 @@ x
 x
 x
 
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxxxx
+
 Target:
 xxx
  x
  x
  x
 
-=== LEVEL: 4
+=== Level 6: Key and lock.
 
 Spouts:
 Material: iron
-Pos: 2, 4
-Flow: 1
+Pos: 10, 4
+Flow: 4
 Max: 24
 
 Molds:
 xx
  x
 xx
+x
+
+x
+
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxxx
+
+// pos: 9, 24; static
+x
+x
+x
+x
 x
 
 Target:
@@ -85,7 +188,7 @@ x   x
 x   x
 xx xx
 
-=== LEVEL: 5
+=== Level 7: Cleveland Z
 
 Spouts:
 Material: iron
@@ -97,13 +200,22 @@ Molds:
 xx
 xx
 
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxxx
+
+// pos: 9, 25; static
+x
+x
+x
+x
+
 Target:
 xxxx
 xxxx
   xxxx
   xxxx
 
-=== LEVEL: 6
+=== Level 8: Letter H
 
 Spouts:
 Material: iron
@@ -115,6 +227,9 @@ Molds:
 xx
 xx
 
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxxx
+
 Target:
 x  x
 x  x
@@ -122,7 +237,49 @@ xxxx
 x  x
 x  x
 
-=== LEVEL: 7
+=== Level 9: Hanging
+
+Spouts:
+Material: iron
+Pos: 8, 4
+Flow: 1
+Max: 17
+
+Spouts:
+Material: iron
+Pos: 11, 4
+Flow: 25
+Max: 25
+
+Molds:
+ xx
+xxx
+
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxxx
+
+// pos: 7, 20; static
+x
+x x
+x
+x
+x
+x
+x
+x
+x
+
+Target:
+  xx
+   x
+x  x
+xxxx
+xxxx
+xxxx
+xxxx
+xxxx
+
+=== Level 8: Chandelier
 
 Spouts:
 Material: iron
@@ -133,6 +290,9 @@ Max: 31
 Molds:
 xx
 xx
+
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxxx
 
 Target:
 x x x
@@ -154,6 +314,9 @@ x
 xx
 xxx
 
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxxx
+
 Target:
 xx
  xx
@@ -173,6 +336,9 @@ Molds:
 xx
 
 xx
+
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxxx
 
 Target:
    x
@@ -194,6 +360,9 @@ xx
 
  x
 xx
+
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxxx
 
 Target:
    x
@@ -217,6 +386,9 @@ Molds:
 xx
  x
  x
+
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxxx
 
 Target:
 xxxx
@@ -243,6 +415,9 @@ xxx
  x
 xx
 
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxxx
+
 Target:
 xxxxxxx
 x     x
@@ -260,6 +435,9 @@ Max: 200
 Molds:
 xxx
 xxx
+
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxxx
 
 Target:
 xxxxxxxxx
@@ -306,6 +484,9 @@ xxxxx
 xxxxx
  xxxx
 
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxxx
+
 Target:
      x
      x
@@ -331,6 +512,9 @@ Molds:
 // pos: 2, 8
 xxxx
 
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxxx
+
 Target:
 xxxxxxxxx
 xxxxx   x
@@ -348,6 +532,9 @@ Max: 20
 
 Molds:
 
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxxx
+
 Target:
 xxxx
    x
@@ -363,6 +550,9 @@ Flow: 1
 Max: 5
 
 Molds:
+
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxxx
 
 Target:
 x
@@ -382,6 +572,9 @@ Molds:
 xx
  x
 xx
+
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxxx
 
 Target:
 xxxx
@@ -417,6 +610,9 @@ xxx
  x
  x
 
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxxx
+
 Target:
 xx xx
 x   x
@@ -435,6 +631,9 @@ Max: 60
 Molds:
 xx
 xx
+
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxxx
 
 Target:
 xxxxxx
@@ -480,6 +679,9 @@ xx
 // pos: 0, 15
  b
 bb
+
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxx
 
 Target:
 bb

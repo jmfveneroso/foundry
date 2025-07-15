@@ -209,8 +209,8 @@ export class RigidBody {
     if (
       newGridX < 0 ||
       newGridX + this.width > Config.GRID_WIDTH ||
-      newGridY < 0 ||
-      newGridY + this.height > Config.GRID_HEIGHT
+      newGridY < 0
+      // newGridY + this.height > Config.GRID_HEIGHT
     ) {
       return; // Abort move if any part of the body's bounding box is outside the grid.
     }
@@ -267,7 +267,7 @@ export class RigidBody {
   }
 
   canMoveDown() {
-    if (this.y + this.height >= Config.GRID_HEIGHT) return false;
+    // if (this.y + this.height >= Config.GRID_HEIGHT) return false;
 
     for (const point of this.shape) {
       const checkX = this.x + point.x;

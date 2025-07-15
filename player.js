@@ -1,19 +1,23 @@
 import { Config } from "./config.js";
 import { GameState } from "./game_state.js";
 import { canvas } from "./ui.js";
-import { addSand, addSandFromSpout } from "./sand.js";
+import { addSand } from "./sand.js";
 import { isInBounds } from "./grid.js";
 
-function editMoldTile(pos, erase = false) {
+// Add a new helper for toggling target tiles
+function toggleTargetTile(pos) {
   if (isInBounds(pos.gridX, pos.gridY)) {
-    GameState.grid[pos.gridY][pos.gridX] = erase
-      ? Config.EMPTY
-      : Config.PREVIEW_MOLD;
+    const currentTile = GameState.grid[pos.gridY][pos.gridX];
+    // If it's already a target tile, erase it. Otherwise, draw it.
+    GameState.grid[pos.gridY][pos.gridX] =
+      currentTile === Config.TARGET_PREVIEW
+        ? Config.EMPTY
+        : Config.TARGET_PREVIEW;
   }
 }
 
 // Helper function to convert mouse/touch coordinates to grid coordinates.
-function getGridPos(evt) {
+export function getGridPos(evt) {
   const rect = canvas.getBoundingClientRect();
   const pointer = evt.changedTouches?.[0] || evt.touches?.[0] || evt;
 
@@ -30,21 +34,43 @@ function getGridPos(evt) {
   };
 }
 
-// Handles moving the dragged stone
+// Helper function for drawing/erasing blueprint tiles in mold editor mode.
+function editMoldTile(pos, erase = false) {
+  if (isInBounds(pos.gridX, pos.gridY)) {
+    GameState.grid[pos.gridY][pos.gridX] = erase
+      ? Config.EMPTY
+      : Config.PREVIEW_MOLD;
+  }
+}
+
+// Handles moving a dragged stone or drawing mold tiles.
 function handleDragMove(evt) {
   evt.preventDefault();
-  // If we move the cursor, it's not a tap, so cancel the long press timer.
-  clearTimeout(GameState.longPressTimer);
-  GameState.potentialDragTarget = null; // Also clear the potential target
 
-  // Add this to handle drawing by dragging the mouse
+  // If in mold editor, continue drawing/erasing.
   if (GameState.isMoldEditorActive) {
     const pos = getGridPos(evt);
     if (pos) {
-      // Use right-click (button 2) to erase, left-click to draw
-      const isErasing = evt.buttons === 2;
+      const isErasing = evt.buttons === 2; // Right mouse button for erasing.
       editMoldTile(pos, isErasing);
     }
+  }
+
+  // Add this to handle drawing the target by dragging the mouse
+  if (GameState.isTargetEditorActive) {
+    const pos = getGridPos(evt);
+    if (pos) {
+      // Only draw, don't erase, while dragging
+      if (GameState.grid[pos.gridY][pos.gridX] === Config.EMPTY) {
+        toggleTargetTile(pos);
+      }
+    }
+  }
+
+  // If moving the cursor, it's not a tap, so cancel the long press timer.
+  if (GameState.potentialDragTarget) {
+    clearTimeout(GameState.longPressTimer);
+    GameState.potentialDragTarget = null;
   }
 
   if (!GameState.draggedStone) return;
@@ -62,22 +88,24 @@ function handleDragMove(evt) {
   stone.moveTo(newX, newY);
 }
 
-// Handles releasing a stone or completing a tap action
+// Handles releasing a stone or completing a tap action.
 function handleInteractionEnd(evt) {
   evt.preventDefault();
-
-  // Always clear the long press timer when the press ends
   clearTimeout(GameState.longPressTimer);
 
-  // If the timer was cleared before it could fire, it means this was a "tap".
-  // The potentialDragTarget will be the spout that was tapped.
   if (GameState.potentialDragTarget) {
-    addSandFromSpout(GameState.potentialDragTarget);
+    // If a potential target exists when the press ends, it was a tap.
+    // In sandbox mode, this is how spouts are activated.
+    if (Config.sandboxMode) {
+      addSandFromSpout(GameState.potentialDragTarget);
+    }
   }
 
-  // Reset all states
+  // Reset all interaction states.
   GameState.draggedStone = null;
   GameState.potentialDragTarget = null;
+  // Let the mold editor button handle toggling its own state.
+  // isMoldEditorActive should persist until its button is clicked again.
 
   window.removeEventListener("mousemove", handleDragMove);
   window.removeEventListener("mouseup", handleInteractionEnd);
@@ -86,11 +114,32 @@ function handleInteractionEnd(evt) {
   window.removeEventListener("touchcancel", handleInteractionEnd);
 }
 
-// Handles the initial mousedown or touchstart event
+// Helper function to initiate a drag on a block.
+function startDrag(block, pos) {
+  GameState.draggedStone = block;
+  GameState.dragOffsetX = pos.gridX - block.x;
+  GameState.dragOffsetY = pos.gridY - block.y;
+
+  // Add move listeners to the window to track the drag globally.
+  window.addEventListener("mousemove", handleDragMove, { passive: false });
+  window.addEventListener("touchmove", handleDragMove, { passive: false });
+}
+
+// Handles the initial mousedown or touchstart event on the canvas.
 function handleInteractionStart(evt) {
   evt.preventDefault();
   const pos = getGridPos(evt);
   if (!pos) return;
+
+  if (GameState.isTargetEditorActive) {
+    toggleTargetTile(pos); // Toggle the tile on a single click
+    // Set up listeners to allow for click-and-drag painting
+    window.addEventListener("mousemove", handleDragMove, { passive: false });
+    window.addEventListener("mouseup", handleInteractionEnd, {
+      passive: false,
+    });
+    return;
+  }
 
   // --- 1. Handle Placement Mode ---
   if (GameState.isPlacingSpout) {
@@ -103,15 +152,15 @@ function handleInteractionStart(evt) {
 
     GameState.isPlacingSpout = false;
     GameState.pendingSpout = null;
-    canvas.classList.remove("hammer-cursor"); // Use same cursor for placement
+    canvas.classList.remove("hammer-cursor"); // Reset cursor
     return;
   }
 
+  // --- 1. Mold Editor takes top priority ---
   if (GameState.isMoldEditorActive) {
-    // Use right-click (button 2) to erase, left-click to draw
     const isErasing = evt.button === 2;
     editMoldTile(pos, isErasing);
-    // Set up global listeners to allow for click-and-drag drawing
+    // Add listeners to allow for click-and-drag drawing.
     window.addEventListener("mousemove", handleDragMove, { passive: false });
     window.addEventListener("mouseup", handleInteractionEnd, {
       passive: false,
@@ -119,7 +168,7 @@ function handleInteractionStart(evt) {
     return;
   }
 
-  // --- Hammer logic takes top priority ---
+  // --- 2. Hammer logic is next ---
   if (GameState.isHammerActive) {
     let blockDestroyed = false;
     for (const stone of GameState.stoneBlocks) {
@@ -133,14 +182,14 @@ function handleInteractionStart(evt) {
         break;
       }
     }
-    // Deactivate hammer after every click, whether it hit or not
+    // Deactivate hammer after every click, whether it hit or not.
     GameState.isHammerActive = false;
     canvas.classList.remove("hammer-cursor");
     document.getElementById("hammerButton").classList.remove("active");
     return;
   }
 
-  // Find which block, if any, was clicked
+  // --- 3. Check for interaction with a physical block ---
   let clickedBlock = null;
   for (const stone of GameState.stoneBlocks) {
     if (stone.containsGlobalPoint(pos.gridX, pos.gridY)) {
@@ -149,66 +198,61 @@ function handleInteractionStart(evt) {
     }
   }
 
-  // --- 4. Check for interaction with a physical block ---
-  for (const stone of GameState.stoneBlocks) {
-    if (stone.containsGlobalPoint(pos.gridX, pos.gridY) && !stone.isStatic) {
-      startDrag(stone, pos);
-      return;
+  if (clickedBlock) {
+    if (clickedBlock.isSpout && Config.sandboxMode) {
+      // Spout Interaction: Tap vs. Long Press
+      GameState.potentialDragTarget = clickedBlock;
+      GameState.longPressTimer = setTimeout(() => {
+        // If the timer completes, it's a long press: start dragging.
+        GameState.potentialDragTarget = null;
+        startDrag(clickedBlock, pos);
+      }, 250);
+    } else if (!clickedBlock.isStatic) {
+      // It's a normal, draggable block.
+      startDrag(clickedBlock, pos);
+    }
+    // If block is static, do nothing.
+  } else {
+    // --- 4. If no block was clicked, check for level-mode spout activation ---
+    const level = GameState.gameLevels[GameState.currentLevelIndex];
+    const spouts = Config.sandboxMode
+      ? GameState.sandboxSpouts
+      : level?.spouts || [];
+    if (!spouts || spouts.length === 0) return;
+
+    let closestDist = Infinity;
+    let closestSpoutIndex = -1;
+
+    spouts.forEach((spout, index) => {
+      const dist = Math.hypot(pos.gridX - spout.pos.x, pos.gridY - spout.pos.y);
+      if (dist < closestDist) {
+        closestDist = dist;
+        closestSpoutIndex = index;
+      }
+    });
+
+    if (
+      closestSpoutIndex !== -1 &&
+      closestDist <= Config.MIN_SPOUT_CLICK_DISTANCE
+    ) {
+      const spout = spouts[closestSpoutIndex];
+      const state = GameState.spoutFlowStates[closestSpoutIndex];
+      const resourcesLeft = GameState.spoutResources[closestSpoutIndex];
+
+      if (state.isFlowing || resourcesLeft < spout.flow) {
+        return;
+      }
+      state.isFlowing = true;
+      state.toPour = spout.flow;
     }
   }
 
-  // --- 5. If no block was clicked, check for spout activation ---
-  const spouts = Config.sandboxMode
-    ? GameState.sandboxSpouts
-    : GameState.gameLevels[GameState.currentLevelIndex]?.spouts || [];
-  if (spouts.length === 0) return;
-
-  let closestDist = Infinity;
-  let closestSpoutIndex = -1;
-
-  spouts.forEach((spout, index) => {
-    const dist = Math.hypot(pos.gridX - spout.pos.x, pos.gridY - spout.pos.y);
-    if (dist < closestDist) {
-      closestDist = dist;
-      closestSpoutIndex = index;
-    }
-  });
-
-  if (
-    closestSpoutIndex !== -1 &&
-    closestDist <= Config.MIN_SPOUT_CLICK_DISTANCE
-  ) {
-    const spout = spouts[closestSpoutIndex];
-    const state = GameState.spoutFlowStates[closestSpoutIndex];
-    const resourcesLeft = GameState.spoutResources[closestSpoutIndex];
-
-    if (state.isFlowing || resourcesLeft < spout.flow) {
-      return; // Spout is busy or not enough resources
-    }
-    state.isFlowing = true;
-    state.toPour = spout.flow;
-  }
-
-  // Add universal "end" and "move" listeners to catch the release or cancel the tap
-  window.addEventListener("mousemove", handleDragMove, { passive: false });
+  // Add universal "end" listeners to catch the release of any interaction.
   window.addEventListener("mouseup", handleInteractionEnd, { passive: false });
-  window.addEventListener("touchmove", handleDragMove, { passive: false });
   window.addEventListener("touchend", handleInteractionEnd, { passive: false });
   window.addEventListener("touchcancel", handleInteractionEnd, {
     passive: false,
   });
-}
-
-// Helper function to initiate a drag on a block
-function startDrag(block, pos) {
-  GameState.draggedStone = block;
-  GameState.dragOffsetX = pos.gridX - block.x;
-  GameState.dragOffsetY = pos.gridY - block.y;
-
-  // These listeners are added here to ensure they are only active during a drag.
-  // The 'end' listeners are added universally in handleInteractionStart.
-  window.addEventListener("mousemove", handleDragMove, { passive: false });
-  window.addEventListener("touchmove", handleDragMove, { passive: false });
 }
 
 export function addPlayerEvents() {

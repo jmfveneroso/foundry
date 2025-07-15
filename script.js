@@ -1,10 +1,12 @@
 import { Config } from "./config.js";
 import { GameState } from "./game_state.js";
+import { getShapeHash } from "./utils.js";
 import {
   createEmptyGrid,
   drawGrid,
   updateGrid,
   drawSpouts,
+  drawSpoutUI,
   isInBounds,
 } from "./grid.js";
 import {
@@ -14,7 +16,7 @@ import {
   addUiEvents,
   generateLevelSelector,
 } from "./ui.js";
-import { addPlayerEvents } from "./player.js";
+import { getGridPos, addPlayerEvents } from "./player.js";
 import {
   enforceCommunicatingVessels,
   drawWaterShapeDebug,
@@ -41,9 +43,97 @@ const hammerButton = document.getElementById("hammerButton");
 const hammerCounterElement = document.getElementById("hammerCounter");
 
 // Add new UI element references
+const defineTargetButton = document.getElementById("defineTargetButton");
 const editMoldButton = document.getElementById("editMoldButton");
 const addSpoutButton = document.getElementById("addSpoutButton");
-const sandboxTools = document.getElementById("sandbox-tools");
+const spoutCreatorModal = document.getElementById("spout-creator-modal");
+const closeModalBtn = document.getElementById("close-modal-btn");
+
+/**
+ * Spawns and updates the small visual drip particles from spouts.
+ */
+function updateDrips() {
+  // Determine the correct list of spouts to use based on the game mode
+  const currentLevel = GameState.gameLevels[GameState.currentLevelIndex];
+  const spouts = Config.sandboxMode
+    ? GameState.sandboxSpouts
+    : currentLevel?.spouts || [];
+
+  // 1. Spawn new particles for each spout that has resources
+  spouts.forEach((spout, index) => {
+    // Check the main resource tracker for this spout
+    const resourcesLeft = GameState.spoutResources[index];
+    if (resourcesLeft > 0) {
+      // A 5% chance to spawn a drip each frame
+      if (Math.random() < 0.05) {
+        GameState.dripParticles.push({
+          x: (spout.pos.x + 0.5) * Config.cellSize,
+          y: (spout.pos.y + 1) * Config.cellSize,
+          vy: 2.0,
+          life: 100,
+          initialLife: 100,
+          material: spout.material, // Pass material for correct coloring
+        });
+      }
+    }
+  });
+
+  // 2. Update and remove old particles, now with collision
+  for (let i = GameState.dripParticles.length - 1; i >= 0; i--) {
+    const p = GameState.dripParticles[i];
+    p.life--;
+
+    if (p.life <= 0) {
+      GameState.dripParticles.splice(i, 1);
+      continue;
+    }
+
+    p.vy += 0.1;
+    p.y += p.vy;
+
+    // --- NEW: Collision Check ---
+    const gridX = Math.floor(p.x / Config.cellSize);
+    const gridY = Math.floor(p.y / Config.cellSize);
+
+    // If particle goes off-screen or hits a non-empty grid cell, remove it
+    if (
+      !isInBounds(gridX, gridY) ||
+      GameState.grid[gridY][gridX] !== Config.EMPTY
+    ) {
+      GameState.dripParticles.splice(i, 1);
+    }
+  }
+}
+
+/**
+ * Draws the visual drip particles with a shimmering molten effect.
+ */
+function drawDrips(ctx) {
+  for (const p of GameState.dripParticles) {
+    // The opacity fades as the particle's life runs out
+    const opacity = p.life / p.initialLife;
+    const size = 5; // The size of the square particle
+
+    // Determine the color palette based on the particle's material
+    const colors =
+      p.material === "brass"
+        ? Config.brassMoltenColors
+        : Config.ironMoltenColors;
+
+    // Pick a random color from the palette for a shimmering effect
+    const color = colors[Math.floor(Math.random() * colors.length)];
+
+    // Set fill style and fade out the particle
+    ctx.globalAlpha = opacity * 0.9;
+    ctx.fillStyle = color;
+
+    // Draw a square centered on the particle's position
+    ctx.fillRect(p.x - size / 2, p.y - size / 2, size, size);
+
+    // Reset global alpha so it doesn't affect other drawings
+    ctx.globalAlpha = 1.0;
+  }
+}
 
 function finalizeDrawnMolds() {
   const visited = new Array(Config.GRID_HEIGHT)
@@ -104,22 +194,41 @@ function finalizeDrawnMolds() {
   }
 }
 
-function resetSandbox() {
-  // Find all blocks that are NOT spouts and remove them from the grid
-  const blocksToRemove = GameState.stoneBlocks.filter(
-    (block) => !block.isSpout
-  );
-  for (const block of blocksToRemove) {
-    block.removeFromGrid();
+function finalizeTargetShape() {
+  const currentLevel = GameState.gameLevels[GameState.currentLevelIndex];
+  if (!currentLevel) return;
+
+  const foundPoints = [];
+  // 1. Scan the grid for all target preview tiles
+  for (let y = 0; y < Config.GRID_HEIGHT; y++) {
+    for (let x = 0; x < Config.GRID_WIDTH; x++) {
+      if (GameState.grid[y][x] === Config.TARGET_PREVIEW) {
+        foundPoints.push({ x, y });
+        // 2. Clear the tile from the grid as we find it
+        GameState.grid[y][x] = Config.EMPTY;
+      }
+    }
   }
 
-  // Update the main list of blocks to only contain the spouts
-  GameState.stoneBlocks = GameState.stoneBlocks.filter(
-    (block) => block.isSpout
-  );
+  if (foundPoints.length === 0) {
+    // If nothing was drawn, clear the existing target
+    currentLevel.targetShape = [];
+    currentLevel.targetShapeHash = "";
+  } else {
+    // 3. Normalize the points to create the new shape data
+    const minX = Math.min(...foundPoints.map((p) => p.x));
+    const minY = Math.min(...foundPoints.map((p) => p.y));
+    const newShape = foundPoints.map((p) => ({ x: p.x - minX, y: p.y - minY }));
 
-  // Clear all molten metal from the grid
-  GameState.grid = createEmptyGrid();
+    // 4. Update the current level's target data
+    // For now, it defaults to 'iron'. A UI could be added to select this.
+    currentLevel.targetShape = newShape;
+    currentLevel.targetMaterialType = "iron";
+    currentLevel.targetShapeHash = getShapeHash(newShape);
+  }
+
+  // 5. Update the target preview display with the new shape
+  drawTargetShape(currentLevel.targetShape, currentLevel.targetMaterialType);
 }
 
 function drawTargetShape(shape, materialType) {
@@ -187,28 +296,17 @@ function loadSandbox() {
   GameState.highlightedWinShape = null;
   GameState.isGameWon = false;
   GameState.isLevelLost = false;
+  GameState.hammerUsesLeft = Infinity;
   GameState.spoutResources = [];
   GameState.spoutFlowStates = [];
-
-  // --- Create Draggable Spouts for Sandbox ---
-  const spoutShape = [{ x: 0, y: 0 }]; // 1x1 shape for all spouts
-
-  const ironSpout = new RigidBody(4, 1, spoutShape, "iron", false);
-  ironSpout.isSpout = true;
-
-  const brassSpout = new RigidBody(15, 1, spoutShape, "brass", false);
-  brassSpout.isSpout = true;
-
-  GameState.stoneBlocks.push(ironSpout, brassSpout);
-  ironSpout.placeInGrid();
-  brassSpout.placeInGrid();
+  GameState.sandboxSpouts = [];
 
   drawTargetShape(null);
 
   stoneButton.classList.remove("hidden");
   editMoldButton.classList.remove("hidden");
   addSpoutButton.classList.remove("hidden");
-  sandboxTools.classList.remove("hidden");
+  defineTargetButton.classList.remove("hidden");
 }
 
 function loadLevel(levelIndex) {
@@ -231,13 +329,15 @@ function loadLevel(levelIndex) {
   stoneButton.classList.add("hidden");
   editMoldButton.classList.add("hidden");
   addSpoutButton.classList.add("hidden");
-  sandboxTools.classList.add("hidden");
+  spoutCreatorModal.classList.add("hidden");
+  defineTargetButton.classList.add("hidden");
 
   GameState.currentLevelIndex = levelIndex;
 
   // Reset state for the new level
   GameState.grid = createEmptyGrid();
   GameState.stoneBlocks = [];
+  GameState.spoutStates = [];
   GameState.ironParticlesUsed = 0;
   GameState.brassParticlesUsed = 0;
   GameState.isLevelComplete = false;
@@ -373,7 +473,17 @@ function update() {
     block.moveDown();
   }
 
+  const blocksOnScreen = [];
+  for (const block of GameState.stoneBlocks) {
+    // A block is considered off-screen if its top edge is past the bottom of the grid.
+    if (block.y < Config.GRID_HEIGHT) {
+      blocksOnScreen.push(block);
+    }
+  }
+  GameState.stoneBlocks = blocksOnScreen;
+
   updateGrid();
+  updateDrips();
 
   if (Config.waterMode) {
     updateWaterShapes();
@@ -401,6 +511,8 @@ function draw() {
   for (const block of GameState.stoneBlocks) {
     block.draw(ctx, GameState.highlightedWinShape === block);
   }
+
+  drawDrips(ctx);
 
   if (Config.waterMode && Config.debugWaterShapes) {
     drawWaterShapeDebug(ctx);
@@ -464,8 +576,11 @@ async function init() {
   const spoutMax = document.getElementById("spoutMax");
 
   addSpoutButton.addEventListener("click", () => {
-    // This button can toggle the visibility of the creator panel for a cleaner UI
-    sandboxTools.classList.toggle("hidden");
+    spoutCreatorModal.classList.remove("hidden");
+  });
+
+  closeModalBtn.addEventListener("click", () => {
+    spoutCreatorModal.classList.add("hidden");
   });
 
   createSpoutButton.addEventListener("click", () => {
@@ -476,8 +591,8 @@ async function init() {
       pos: { x: 0, y: 0 },
     };
     GameState.isPlacingSpout = true;
-    canvas.classList.add("hammer-cursor"); // Re-use crosshair cursor for placement
-    controlsPanel.classList.add("hidden");
+    canvas.classList.add("hammer-cursor");
+    spoutCreatorModal.classList.add("hidden"); // Hide the modal to allow placement
   });
 
   canvas.addEventListener("mousemove", (e) => {
@@ -507,7 +622,7 @@ async function init() {
   // Wire up level progression buttons
   document.getElementById("resetButton").addEventListener("click", () => {
     if (Config.sandboxMode) {
-      resetSandbox();
+      loadSandbox();
     } else {
       loadLevel(GameState.currentLevelIndex);
     }
@@ -539,12 +654,34 @@ async function init() {
     hammerButton.classList.toggle("active", GameState.isHammerActive);
   });
 
+  // Update the "Define Target" button's event listener
+  defineTargetButton.addEventListener("click", () => {
+    const wasActive = GameState.isTargetEditorActive;
+
+    // Deactivate other sandbox modes to prevent conflicts
+    GameState.isMoldEditorActive = false;
+    editMoldButton.classList.remove("active");
+    GameState.isPlacingSpout = false;
+    canvas.classList.remove("hammer-cursor");
+
+    // Toggle target editor mode
+    GameState.isTargetEditorActive = !wasActive;
+    defineTargetButton.classList.toggle(
+      "active",
+      GameState.isTargetEditorActive
+    );
+
+    // If we were in edit mode and just turned it OFF, finalize the shape.
+    if (wasActive && !GameState.isTargetEditorActive) {
+      finalizeTargetShape();
+    }
+  });
+
   editMoldButton.addEventListener("click", () => {
     GameState.isMoldEditorActive = !GameState.isMoldEditorActive; // Toggle the mode
 
     if (GameState.isMoldEditorActive) {
       // Entering edit mode
-      resetSandbox(); // Clear the board for drawing
       editMoldButton.textContent = "Finish";
       editMoldButton.classList.add("active");
     } else {

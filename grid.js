@@ -34,7 +34,7 @@ export function drawSpouts(ctx) {
 }
 
 // Helper to draw a single spout and its UI, based on its properties
-function drawSpoutUI(ctx, spout, state, resourcesLeft, colors) {
+export function drawSpoutUI(ctx, spout, state, resourcesLeft, colors) {
   const x = spout.pos.x * Config.cellSize;
   const y = spout.pos.y * Config.cellSize;
   const halfCell = Config.cellSize / 2;
@@ -115,6 +115,16 @@ export function drawGrid() {
           Config.cellSize
         );
         continue;
+      } else if (cell === Config.TARGET_PREVIEW) {
+        ctx.fillStyle = Config.colors[Config.TARGET_PREVIEW];
+        ctx.shadowBlur = 0;
+        ctx.fillRect(
+          x * Config.cellSize,
+          y * Config.cellSize,
+          Config.cellSize,
+          Config.cellSize
+        );
+        continue;
       } else {
         continue; // Skip empty cells
       }
@@ -134,7 +144,7 @@ export function drawGrid() {
 }
 
 export function updateGrid() {
-  for (let y = Config.GRID_HEIGHT - 2; y >= 0; y--) {
+  for (let y = Config.GRID_HEIGHT - 1; y >= 0; y--) {
     const row = GameState.grid[y];
     for (let x = 0; x < Config.GRID_WIDTH; x++) {
       const cell = row[x];

@@ -1,6 +1,6 @@
 export const baseConfig = {
   // Grid.
-  GRID_WIDTH: 20,
+  GRID_WIDTH: 21,
   GRID_HEIGHT: 30,
   availableWidth: window.innerWidth * 0.95,
   availableHeight: (window.innerHeight - 180) * 0.95,
@@ -10,6 +10,7 @@ export const baseConfig = {
   BRASS_MOLTEN: 3,
   BRASS_SOLID: 4,
   PREVIEW_MOLD: 5,
+  TARGET_PREVIEW: 6,
   sandboxMode: false,
   waterMode: true,
   singleParticleCreation: true,
@@ -40,6 +41,7 @@ baseConfig.colors = {
   [baseConfig.STONE]: "#808080", // Solid Iron color
   [baseConfig.BRASS_SOLID]: "#b5a642", // Solid Brass color
   [baseConfig.PREVIEW_MOLD]: "rgba(100, 150, 255, 0.6)",
+  [baseConfig.TARGET_PREVIEW]: "rgba(255, 100, 100, 0.6)",
 };
 
 // Add this new color palette for the molten metal

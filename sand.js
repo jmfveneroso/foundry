@@ -268,45 +268,49 @@ export function enforceCommunicatingVessels() {
 
 export function updateSand(x, y) {
   let material = GameState.grid[y][x];
-  // --- WATER PHYSICS ---
-  if (Config.waterMode) {
-    const down = y + 1;
+  const down = y + 1;
 
+  // Check if the particle is at the bottom of the screen and should be removed.
+  if (!isInBounds(x, down)) {
+    GameState.grid[y][x] = Config.EMPTY;
+    return;
+  }
+
+  // --- WATER PHYSICS (Molten Metal) ---
+  if (Config.waterMode) {
     // 1. Gravity is the highest priority
-    if (isInBounds(x, down) && GameState.grid[down][x] === Config.EMPTY) {
+    if (GameState.grid[down][x] === Config.EMPTY) {
       GameState.grid[y][x] = Config.EMPTY;
       GameState.grid[down][x] = material;
       return;
     }
 
     // 2. Diagonal flow with gap prevention
-    const dir = Math.random() < 0.5 ? 1 : -1; // -1 for left, 1 for right
+    const dir = Math.random() < 0.5 ? 1 : -1;
 
-    // Check first diagonal direction
     let nextX1 = x + dir;
     if (
-      isInBounds(nextX1, down) &&
-      GameState.grid[down][nextX1] === Config.EMPTY && // Is the destination empty?
-      GameState.grid[y][nextX1] !== Config.STONE // *** Is the path to the side clear? ***
+      GameState.grid[down][nextX1] === Config.EMPTY &&
+      GameState.grid[y][nextX1] !== Config.STONE &&
+      GameState.grid[y][nextX1] !== Config.BRASS_SOLID
     ) {
       GameState.grid[y][x] = Config.EMPTY;
       GameState.grid[down][nextX1] = material;
       return;
     }
 
-    // Check other diagonal direction
     let nextX2 = x - dir;
     if (
-      isInBounds(nextX2, down) &&
-      GameState.grid[down][nextX2] === Config.EMPTY && // Is the destination empty?
-      GameState.grid[y][nextX2] !== Config.STONE // *** Is the path to the side clear? ***
+      GameState.grid[down][nextX2] === Config.EMPTY &&
+      GameState.grid[y][nextX2] !== Config.STONE &&
+      GameState.grid[y][nextX2] !== Config.BRASS_SOLID
     ) {
       GameState.grid[y][x] = Config.EMPTY;
       GameState.grid[down][nextX2] = material;
       return;
     }
 
-    // 3. Horizontal pressure flow (no change needed here)
+    // 3. Horizontal pressure flow
     displaceWaterHorizontally(x, y);
   }
   // --- SAND/CLAY PHYSICS ---
@@ -314,8 +318,7 @@ export function updateSand(x, y) {
     if (Math.random() * 100 < Config.viscosity) {
       return;
     }
-    const down = y + 1;
-    if (!isInBounds(x, down)) return;
+
     const downCell = GameState.grid[down][x] === Config.EMPTY;
     const leftDiagCell =
       !isInBounds(x - 1, down) || GameState.grid[down][x - 1] === Config.EMPTY;
@@ -325,11 +328,13 @@ export function updateSand(x, y) {
     if (downCell) unsupported++;
     if (leftDiagCell) unsupported++;
     if (rightDiagCell) unsupported++;
+
     if (downCell && unsupported > Config.cohesion) {
       GameState.grid[y][x] = Config.EMPTY;
       GameState.grid[down][x] = material;
       return;
     }
+
     if (Config.cohesion < 2) {
       const dir = Math.random() < 0.5 ? -1 : 1;
       if (leftDiagCell && dir === -1) {
@@ -362,7 +367,12 @@ export function addSandFromSpout(spoutBody) {
 // This function now accepts the index of the spout that is pouring
 export function addSand(spoutIndex) {
   const level = GameState.gameLevels[GameState.currentLevelIndex];
-  const spout = level.spouts[spoutIndex];
+
+  const spouts = Config.sandboxMode
+    ? GameState.sandboxSpouts
+    : level?.spouts || [];
+
+  const spout = spouts[spoutIndex];
   if (!spout) return;
 
   const isBrass = spout.material === "brass";

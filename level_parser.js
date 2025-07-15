@@ -36,10 +36,11 @@ function parse(text) {
   const levels = [];
   const levelChunks = text.split("===").filter((chunk) => chunk.trim());
 
-  levelChunks.forEach((chunk) => {
+  levelChunks.forEach((chunk, index) => {
     const lines = chunk.trim().split("\n");
     const levelHeader = lines.shift().trim();
-    const levelNum = parseInt(levelHeader.split(":")[1].trim(), 10);
+    // const levelNum = parseInt(levelHeader.split(":")[1].trim(), 10);
+    const levelNum = index + 1;
 
     let currentSection = "";
     const moldLineGroups = [[]];
