@@ -927,3 +927,31 @@ bbbbbbb
 bbbbbbb
  bbbbb
    b
+
+=== Spikes
+
+Spouts:
+Material: brass
+Pos: 1, 4
+Flow: 4
+Max: 28
+
+Material: iron
+Pos: 19, 4
+Flow: 4
+Max: 4
+
+Molds:
+x
+x
+
+xx
+
+// pos: 0, 26; static
+x x x x x x x x x x x
+x x x x x x x x x x x
+x x x x x x x x x x x
+xxxxxxxxxxxxxxxxxxxxx
+
+Target:
+bbbbbbbbbbbb
