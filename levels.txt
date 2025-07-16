@@ -761,3 +761,169 @@ xxx
 
 MaxHammers: 1
 
+=== Smiley
+
+Spouts:
+Material: iron
+Pos: 8, 3
+Flow: 4
+Max: 19
+
+Spouts:
+Material: brass
+Pos: 12, 3
+Flow: 1
+Max: 58
+
+Molds:
+x
+
+// pos: 0, 19; static
+     xxx     xxx
+     xx       xx
+     x         x
+     x         x
+     x         x
+     x         x
+     x         x
+     x         x
+     xx       xx
+     xxx     xxx
+xxxxxxxxxxxxxxxxxxxx
+
+Target:
+  bbbbb
+ bbbbbbb
+bbbbbbbbb
+b  bbb  b
+b  bbb  b
+bbbbbbbbb
+b       b
+bb     bb
+ bbbbbbb
+  bbbbb
+
+=== Unblock the path
+
+Spouts:
+Material: brass
+Pos: 18, 1
+Flow: 5
+Max: 5
+
+Molds:
+// pos: 19, 7
+bb
+bb
+bb
+
+// pos: 0, 11
+bb
+bb
+bb
+
+// pos: 19, 15
+bb
+bb
+bb
+
+// pos: 0, 19
+bb
+bb
+bb
+
+// pos: 0, 0; static
+xxxxxxxxxxxxxxxxxx xx
+xxxxxxxxxxxxxxxxxx xx
+xxxxxxxxxxxxxxxxxx xx
+xxxxxxxxxxxxxxxxxx xx
+                   xx
+                   xx
+ xxxxxxxxxxxxxxxxxxxx
+
+// pos: 0, 10; static
+xxxxxxxxxxxxxxxxxxxx
+
+// pos: 1, 14; static
+xxxxxxxxxxxxxxxxxxxx
+
+// pos: 0, 18; static
+xxxxxxxxxxxxxxxxxxxx
+
+// pos: 1, 22; static
+xxxxxxxxxxxxxxxxxxxx
+
+// pos: 0, 26; static
+xxxxxxxxxxxxxxxxx xxx
+xxxxxxxxxxxxxxxxx xxx
+xxxxxxxxxxxxxxxx   xx
+xxxxxxxxxxxxxxxxxxxxx
+
+Target:
+ b
+ b
+bbb
+
+=== Brass can be bad
+
+Spouts:
+Material: brass
+Pos: 1, 4
+Flow: 3
+Max: 3
+
+Material: brass
+Pos: 19, 4
+Flow: 3
+Max: 3
+
+Molds:
+ bb
+bb
+
+bb
+ bb
+
+// pos: 0, 29; static
+xxxxxxxxxx xxxxxxxxxx
+
+Target:
+bbb
+bbb
+bbb
+ b
+
+MaxHammers: 2
+
+=== Heart
+
+Spouts:
+Material: brass
+Pos: 1, 4
+Flow: 4
+Max: 28
+
+Material: iron
+Pos: 19, 4
+Flow: 4
+Max: 4
+
+Molds:
+x
+x
+
+xx
+
+// pos: 0, 23; static
+x x
+
+// pos: 0, 29; static
+xxxxxxxxxx xxxxxxxxxx
+
+Target:
+ b   b
+bbb bbb
+bbbbbbb
+bbbbbbb
+ bbbbb
+   b

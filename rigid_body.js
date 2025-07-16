@@ -241,17 +241,18 @@ export class RigidBody {
 
     this.x = newGridX;
     this.y = newGridY;
-
+    this.y = newGridY;
+    
     const particlesToDisplace = [];
     for (const point of this.shape) {
-      const checkX = newGridX + point.x;
-      const checkY = newGridY + point.y;
-      if (
-        isInBounds(checkX, checkY) &&
-        GameState.grid[checkY][checkX] === Config.IRON_MOLTEN
-      ) {
-        particlesToDisplace.push({ x: checkX, y: checkY });
+     const checkX = newGridX + point.x;
+     const checkY = newGridY + point.y;
+     if (isInBounds(checkX, checkY)) {
+      const cell = GameState.grid[checkY][checkX];
+      if (cell === Config.IRON_MOLTEN || cell === Config.BRASS_MOLTEN) {
+       particlesToDisplace.push({ x: checkX, y: checkY });
       }
+     }
     }
 
     for (const p of particlesToDisplace) {

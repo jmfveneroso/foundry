@@ -432,13 +432,15 @@ export function displaceSand(startX, startY, movingBody) {
         movingBody && movingBody.containsGlobalPoint(nextX, nextY);
 
       const cellType = GameState.grid[nextY][nextX];
-
       if (cellType === Config.EMPTY && !isForbidden) {
         destination = { x: nextX, y: nextY };
         parentMap.set(key, current);
         queue.length = 0;
         break;
-      } else if (cellType === Config.IRON_MOLTEN) {
+      } else if (
+        cellType === Config.IRON_MOLTEN ||
+        cellType === Config.BRASS_MOLTEN
+      ) {
         parentMap.set(key, current);
         queue.push({ x: nextX, y: nextY });
       }
