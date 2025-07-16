@@ -409,20 +409,21 @@ function update() {
   }
 
   // Check for sand on the grid to set the Solidify button state
-  let isSandOnGrid = false;
+  let sandOnGrid = false;
+  // Scan the grid to see if any molten metal remains
   for (let y = 0; y < Config.GRID_HEIGHT; y++) {
     for (let x = 0; x < Config.GRID_WIDTH; x++) {
       const cell = GameState.grid[y][x];
       if (cell === Config.IRON_MOLTEN || cell === Config.BRASS_MOLTEN) {
-        isSandOnGrid = true;
-        break;
+        sandOnGrid = true;
+        break; // Found sand, so the game is not lost yet
       }
     }
-    if (isSandOnGrid) break;
+    if (sandOnGrid) break;
   }
 
   // Toggle button styles based on whether sand is present
-  if (isSandOnGrid) {
+  if (sandOnGrid) {
     solidifyButton.classList.add("highlight-btn");
     solidifyButton.classList.remove("btn-disabled");
   } else {
@@ -444,20 +445,8 @@ function update() {
     const currentLevel = GameState.gameLevels[GameState.currentLevelIndex];
     const allResourcesUsed = GameState.spoutResources.every((res) => res <= 0);
     if (allResourcesUsed) {
-      let sandOnGrid = false;
-      // Scan the grid to see if any molten metal remains
-      for (let y = 0; y < Config.GRID_HEIGHT; y++) {
-        for (let x = 0; x < Config.GRID_WIDTH; x++) {
-          if (GameState.grid[y][x] === Config.IRON_MOLTEN) {
-            sandOnGrid = true;
-            break; // Found sand, so the game is not lost yet
-          }
-        }
-        if (sandOnGrid) break;
-      }
-
       // If all metal is used and none is left on screen, the player loses
-      if (!sandOnGrid) {
+      if (!sandOnGrid && GameState.hammerUsesLeft <= 0) {
         GameState.isLevelLost = true;
       }
     }

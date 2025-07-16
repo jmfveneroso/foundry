@@ -4,7 +4,7 @@ import { StoneBlock } from "./stone.js";
 import { createEmptyGrid } from "./grid.js";
 import { isInBounds } from "./grid.js";
 import { RigidBody } from "./rigid_body.js";
-import { getShapeHash } from "./utils.js";
+import { getShapeHash, checkWinCondition } from "./utils.js";
 
 const controlsPanel = document.querySelector(".controls");
 export const canvas = document.getElementById("gameCanvas");
@@ -288,20 +288,7 @@ export function addUiEvents() {
       }
     }
 
-    // After all solidification and merging is complete, check ALL blocks on the screen.
-    const currentLevel = GameState.gameLevels[GameState.currentLevelIndex];
-    for (const block of GameState.stoneBlocks) {
-      const blockShapeHash = getShapeHash(block.shape);
-
-      if (
-        blockShapeHash === currentLevel.targetShapeHash &&
-        block.materialType === currentLevel.targetMaterialType
-      ) {
-        GameState.isLevelComplete = true;
-        GameState.highlightedWinShape = block;
-        break; // Level is won, no need to check other blocks
-      }
-    }
+    checkWinCondition();
   });
 }
 

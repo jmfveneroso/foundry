@@ -22,3 +22,32 @@ export function getShapeHash(points) {
     .sort() // Sort to ensure order doesn't matter
     .join(";");
 }
+
+/**
+ * Checks if any block on the grid matches the current level's target shape.
+ * If a match is found, it updates the game state to trigger a win.
+ */
+export function checkWinCondition() {
+  // Don't check in sandbox mode or if level is already complete
+  if (Config.sandboxMode || GameState.isLevelComplete) {
+    return;
+  }
+
+  const currentLevel = GameState.gameLevels[GameState.currentLevelIndex];
+  if (!currentLevel || !currentLevel.targetShapeHash) {
+    return; // No target shape to check against
+  }
+
+  for (const block of GameState.stoneBlocks) {
+    const blockShapeHash = getShapeHash(block.shape);
+
+    if (
+      blockShapeHash === currentLevel.targetShapeHash &&
+      block.materialType === currentLevel.targetMaterialType
+    ) {
+      GameState.isLevelComplete = true;
+      GameState.highlightedWinShape = block;
+      break; // Level is won
+    }
+  }
+}

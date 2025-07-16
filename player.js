@@ -3,6 +3,7 @@ import { GameState } from "./game_state.js";
 import { canvas } from "./ui.js";
 import { addSand } from "./sand.js";
 import { isInBounds } from "./grid.js";
+import { getShapeHash, checkWinCondition } from "./utils.js";
 
 // Add a new helper for toggling target tiles
 function toggleTargetTile(pos) {
@@ -179,6 +180,7 @@ function handleInteractionStart(evt) {
           GameState.hammerUsesLeft--;
         }
         blockDestroyed = true;
+        checkWinCondition();
         break;
       }
     }
@@ -239,11 +241,18 @@ function handleInteractionStart(evt) {
       const state = GameState.spoutFlowStates[closestSpoutIndex];
       const resourcesLeft = GameState.spoutResources[closestSpoutIndex];
 
-      if (state.isFlowing || resourcesLeft < spout.flow) {
+      // Don't pour if already flowing or completely empty
+      if (state.isFlowing || resourcesLeft <= 0) {
         return;
       }
-      state.isFlowing = true;
-      state.toPour = spout.flow;
+
+      // Determine the actual amount to pour: either the full flow or what's left
+      const amountToPour = Math.min(spout.flow, resourcesLeft);
+
+      if (amountToPour > 0) {
+        state.isFlowing = true;
+        state.toPour = amountToPour;
+      }
     }
   }
 

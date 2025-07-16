@@ -1,4 +1,4 @@
-=== Tutorial 1: Pouring Iron
+=== Pouring Iron
 
 Spouts:
 Material: iron
@@ -32,7 +32,7 @@ xxx
 xxx
 xxx
 
-=== Tutorial 2: Moving molds
+=== Moving molds
 
 Spouts:
 Material: iron
@@ -65,7 +65,7 @@ xxx
 xxx
 xxx
 
-=== Tutorial 3: Making molds
+=== Making molds
 
 Spouts:
 Material: iron
@@ -87,7 +87,7 @@ xx
 xx
 x
 
-=== Tutorial 4: Go with the flow
+=== Go with the flow
 
 Spouts:
 Material: iron
@@ -129,7 +129,7 @@ xx
 xx
 xxx
 
-=== Tutorial 5: Letter T
+=== Letter T
 
 Spouts:
 Material: iron
@@ -155,7 +155,7 @@ xxx
  x
  x
 
-=== Level 6: Key and lock.
+=== Key and lock.
 
 Spouts:
 Material: iron
@@ -188,7 +188,7 @@ x   x
 x   x
 xx xx
 
-=== Level 7: Cleveland Z
+=== Cleveland Z
 
 Spouts:
 Material: iron
@@ -215,7 +215,7 @@ xxxx
   xxxx
   xxxx
 
-=== Level 8: Letter H
+=== Letter H
 
 Spouts:
 Material: iron
@@ -237,13 +237,13 @@ xxxx
 x  x
 x  x
 
-=== Level 9: Hanging
+=== Hanging
 
 Spouts:
 Material: iron
 Pos: 8, 4
-Flow: 1
-Max: 17
+Flow: 2
+Max: 16
 
 Spouts:
 Material: iron
@@ -254,6 +254,8 @@ Max: 25
 Molds:
  xx
 xxx
+
+x
 
 // pos: 0, 29; static
 xxxxxxxxxxxxxxxxxxxx
@@ -279,20 +281,27 @@ xxxx
 xxxx
 xxxx
 
-=== Level 8: Chandelier
+=== Chandelier
 
 Spouts:
 Material: iron
-Pos: 2, 4
+Pos: 10, 4
 Flow: 1
-Max: 31
+Max: 30
 
 Molds:
 xx
 xx
 
+x
+x
+
 // pos: 0, 29; static
-xxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxx
+
+// pos: 7, 25; static
+x
+x
 
 Target:
 x x x
@@ -301,11 +310,11 @@ xxxxx
   x 
   x
 
-=== LEVEL: 8
+=== Stairway to Heaven
 
 Spouts:
 Material: iron
-Pos: 2, 4
+Pos: 10, 4
 Flow: 1
 Max: 21
 
@@ -317,6 +326,10 @@ xxx
 // pos: 0, 29; static
 xxxxxxxxxxxxxxxxxxxx
 
+// pos: 12, 27; static
+xx
+ x
+
 Target:
 xx
  xx
@@ -324,41 +337,49 @@ xx
    xx
     xx
 
-=== LEVEL: 9
+=== Pyramid
 
 Spouts:
 Material: iron
-Pos: 2, 4
-Flow: 1
-Max: 28
-
-Molds:
-xx
-
-xx
-
-// pos: 0, 29; static
-xxxxxxxxxxxxxxxxxxxx
-
-Target:
-   x
-  xxx
- xxxxx
-xxxxxxx
-
-=== LEVEL: 10
-
-Spouts:
-Material: iron
-Pos: 2, 4
-Flow: 1
-Max: 33
+Pos: 10, 4
+Flow: 4
+Max: 24
 
 Molds:
 x
+xxx
+
+xxx
+ x
+
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxxx
+
+// pos: 12, 27; static
+xx
+ x
+
+Target:
+   x
+  xxx
+ xxxxx
+xxxxxxx
+
+=== Tree
+
+Spouts:
+Material: iron
+Pos: 12, 4
+Flow: 4
+Max: 29
+
+Molds:
+x
+xxxx
+
+ x  
 xx
 
- x
 xx
 
 // pos: 0, 29; static
@@ -371,13 +392,18 @@ Target:
 xxxxxxx
    x
 
-=== LEVEL: 11
+=== Letter S
 
 Spouts:
 Material: iron
 Pos: 2, 4
-Flow: 1
-Max: 32
+Flow: 2
+Max: 4
+
+Material: iron
+Pos: 7, 4
+Flow: 6
+Max: 24
 
 Molds:
    xx
@@ -390,6 +416,18 @@ xx
 // pos: 0, 29; static
 xxxxxxxxxxxxxxxxxxxx
 
+// pos: 10, 22; static
+xx
+xx
+xx
+xx
+ x
+ x
+ x
+ x
+ x
+
+
 Target:
 xxxx
 x  x
@@ -399,23 +437,28 @@ x
 x  x
 xxxx
 
-=== LEVEL: 12
+=== Bull Horns
 
 Spouts:
 Material: iron
 Pos: 2, 4
-Flow: 1
+Flow: 9
 Max: 28
 
 Molds:
+// pos: 2, 20
   x
 x x
 xxx
 
+// pos: 10, 20
  x
 xx
 
-// pos: 0, 29; static
+// pos: 1, 15; static
+xxxxxxxxxxxxxxxxxxx
+
+// pos: 1, 29; static
 xxxxxxxxxxxxxxxxxxxx
 
 Target:
@@ -424,38 +467,16 @@ x     x
 x x x x
 xxx xxx
 
-=== LEVEL: 13
+=== Almost Four Cubes
 
 Spouts:
 Material: iron
 Pos: 2, 4
-Flow: 1
-Max: 200
+Flow: 6
+Max: 42
 
-Molds:
-xxx
-xxx
-
-// pos: 0, 29; static
-xxxxxxxxxxxxxxxxxxxx
-
-Target:
-xxxxxxxxx
-x       x
-x x   x x
-x x   x x
-  xxxxxxx
-x x   x x
-x x   x x
-x       x
-xxxxxxxxx
-
-=== LEVEL: 14
-
-Spouts:
-Material: iron
 Pos: 2, 4
-Flow: 1
+Flow: 7
 Max: 42
 
 Molds:
@@ -484,7 +505,8 @@ xxxxx
 xxxxx
  xxxx
 
-// pos: 0, 29; static
+// pos: 0, 28; static
+xxxxx xxxxxxxxxxxxxx
 xxxxxxxxxxxxxxxxxxxx
 
 Target:
@@ -500,20 +522,29 @@ xxxxxxxxxxx
      x
      x
 
-=== LEVEL: 15
+=== Efficiency is key
 
 Spouts:
 Material: iron
-Pos: 2, 4
-Flow: 1
-Max: 27
+Pos: 14, 4
+Flow: 4
+Max: 33
 
 Molds:
-// pos: 2, 8
-xxxx
+// pos: 4, 8
+x
 
-// pos: 0, 29; static
-xxxxxxxxxxxxxxxxxxxx
+// pos: 6, 8
+x
+x
+
+// pos: 2, 24; static
+       xxxxxxxxxxxx
+       xxxxxxxxxxxx
+       xxxxxxxxxxxx
+       xxxxxxxxxxxx
+       xxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxx
 
 Target:
 xxxxxxxxx
@@ -522,50 +553,41 @@ x       x
 x       x
 x       x
 
-=== LEVEL: 16
+=== Don't let the iron escape
 
 Spouts:
 Material: iron
-Pos: 2, 4
+Pos: 1, 4
 Flow: 1
-Max: 20
+Max: 19
 
 Molds:
+x
 
 // pos: 0, 29; static
 xxxxxxxxxxxxxxxxxxxx
 
 Target:
 xxxx
-   x
- x x
+x   
+x x  
 xxxx
 
-=== LEVEL: 17
+=== Matrioshka
 
 Spouts:
 Material: iron
-Pos: 2, 4
-Flow: 1
+Pos: 1, 4
+Flow: 5
 Max: 5
 
-Molds:
+Pos: 18, 4
+Flow: 8
+Max: 8
 
-// pos: 0, 29; static
-xxxxxxxxxxxxxxxxxxxx
-
-Target:
-x
-x
-x
-
-=== LEVEL: 18
-
-Spouts:
-Material: iron
-Pos: 2, 4
-Flow: 1
-Max: 29
+Pos: 16, 4
+Flow: 14
+Max: 14
 
 Molds:
 // pos: 0, 8
@@ -573,8 +595,16 @@ xx
  x
 xx
 
-// pos: 0, 29; static
-xxxxxxxxxxxxxxxxxxxx
+x
+xx
+
+// pos: 1, 13; static
+         x
+xxxxxxxxxxxxxxxxxxx
+
+// pos: 0, 28; static
+xxxx xxxx xxxxxxx xxx
+xxxx xxxx xxxxxxxxxxx
 
 Target:
 xxxx
@@ -584,14 +614,15 @@ xxxx
    x
    x
 xxxx
+x
 
-=== LEVEL: 19
+=== Top is the way
 
 Spouts:
 Material: iron
-Pos: 2, 4
+Pos: 7, 4
 Flow: 1
-Max: 30
+Max: 29
 
 Molds:
  xx
@@ -618,9 +649,9 @@ xx xx
 x   x
 x   x
 x   x
-xxxxx
+xxxxxx
 
-=== LEVEL: 20
+=== Spiral
 
 Spouts:
 Material: iron
@@ -646,45 +677,87 @@ xxxxxx
 MaxIron: 60
 
 
-=== LEVEL: 21
+=== Enclosed Age
 
 Spouts:
 Material: iron
-Pos: 8, 3
-Flow: 3
-Max: 50
-
-Material: iron
-Pos: 12, 3
-Flow: 5
-Max: 20
-
-Material: brass
-Pos: 5, 2
-Flow: 5
-Max: 60
+Pos: 2, 4
+Flow: 1
+Max: 200
 
 Molds:
-// pos: 0, 8; static
-xx
- x
-xx
+xxx
+xxx
 
-xx
-xx
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxxx
 
-xx
-xx
+Target:
+xxxxxxxxx
+x       x
+x x   x x
+x x   x x
+  xxxxxxx
+x x   x x
+x x   x x
+x       x
+xxxxxxxxx
+
+
+=== Tutorial Brass
+
+Spouts:
+Material: brass
+Pos: 5, 3
+Flow: 2
+Max: 2
+
+Material: brass
+Pos: 14, 3
+Flow: 2
+Max: 2
+
+Molds:
+bb
+bb
+
+bb
+bb
 
 // pos: 0, 15
  b
 bb
 
-// pos: 0, 29; static
+// pos: 0, 27; static
+    x
+    x
 xxxxxxxxxxxxxxxxxxx
 
 Target:
-bb
-bb
+bbb   bbb
+bbbbbbbbb
 
-MaxHammers: 5
+=== Tutorial Hammer
+
+Spouts:
+Material: iron
+Pos: 5, 3
+Flow: 3
+Max: 12
+
+Molds:
+ x
+xx
+
+// pos: 0, 27; static
+   x
+   x
+xxxxxxxxxxxxxxxxxxx
+
+Target:
+xxx
+x x
+xxx
+
+MaxHammers: 1
+

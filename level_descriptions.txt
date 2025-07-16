@@ -1,0 +1,119 @@
+Name: Pouring Iron
+Objective: To introduce the most fundamental game mechanic: pouring a specific amount of molten metal into a static, pre-defined mold to create a solid shape.
+
+Description: This is the introductory level. The player is presented with a contained mold formed by static walls. The single iron spout contains the exact amount of metal (15 units) needed to fill the 3x5 cavity. The player simply needs to click the spout, pour the iron, and solidify it to create the target rectangle and complete the level.
+
+Name: Moving molds
+Objective: To teach the player that molds are movable objects that can be combined with the static environment to create new casting cavities.
+
+Description: Building upon the first level, the puzzle now requires player interaction to form the mold. The player must drag the provided 2x5 mold piece and place it snugly against the static right-hand wall. This action completes the 3x5 negative space required to cast the target shape. It's a simple but crucial lesson in object manipulation.
+
+Name: Making molds
+Objective: To introduce the advanced concept of multi-step casting, where the player must first cast a new mold piece, and then use that new piece as a tool to cast the final target.
+
+Description: This level presents a puzzle that cannot be solved in a single step. The player must use the initial complex mold to pour a new solid shape. This newly cast piece is not the target, but rather a tool that contains the L-shaped negative space of the actual target. The player must then reposition this new mold and use their remaining iron to pour into its cavity, finally creating the small boot-shaped target.
+
+Name: Go with the flow
+Objective: To challenge the player's understanding of fluid dynamics and resource management by forcing them to use overflow to achieve a specific volume.
+
+Description: In this level, the player must combine the two provided molds to form the negative space of the target shape. The twist is that none of the spouts provide the exact 7 units of iron required. The player must deduce that they need to use the 9-unit spout, pouring it into the 7-unit cavity. The excess 2 units of iron will overflow and spill away, leaving the perfect amount in the mold to be solidified.
+
+Name: Letter T
+Objective: To reinforce the skill of constructing a custom mold from simple, primitive shapes to create a more complex target.
+
+Description: The player is given two simple vertical bars. To create the target 'T', they must arrange these bars on the floor to form the negative space. The intended solution is to place the bars one cell apart to form the T's vertical stem, pour iron into it, and then pour more iron on top, which will flow over the bars to form the horizontal top piece.
+
+Name: Key and lock.
+Objective: To introduce the concept of using a mold as a "core" or "plug" inside a larger mold cavity to create hollow shapes or intricate negative spaces.
+
+ Description: This level uses a powerful metaphor. The static environment forms a large "lock" cavity. The player must place the "key" shaped mold inside this cavity before pouring. The key acts as a plug, blocking the metal from filling that space. Pouring the iron around this key-core casts the final lock shape, complete with a perfectly formed keyhole.
+
+Name: Cleveland Z
+Objective: To test the player's ability in sequential construction, using previously cast parts as essential components for the next stage of mold building.
+
+Description: The player starts with only a tiny 2x2 mold but must create a large, 16-unit Z-shape. The solution requires a chain of operations: the player must first cast a 2x2 block. This new block is then used with the original mold to create a larger 2x4 cavity, which is then cast. The puzzle requires the player to use the very objects they create to bootstrap their way to the larger, more complex final target.
+
+Name: Letter H
+Objective: To create a shape with an internal hole by using a sacrificial "bridge" of metal that is poured over and then enclosed.
+
+Description: To form the letter 'H', the player must be clever. The only tool is a 2x2 square. The player can place the square, pour iron next to it to form one vertical bar of the 'H', then move the square and repeat for the other side. The key is forming the horizontal bar: the player must pour iron over the top of a previously cast section, letting it connect the two vertical bars before solidifying everything.
+
+Name: Hanging
+Objective: To solve a puzzle involving a seemingly unreachable area by using a previously cast object as a platform or support structure.
+
+Description: The target shape is located high up on a static hook structure, seemingly impossible to fill from the spouts below. The player must use the provided molds to cast a tall, solid pillar of iron. This pillar is then moved into position beneath the hook, acting as a platform. The molten iron can then be poured onto this platform, allowing it to flow upwards and fill the hanging mold cavity.
+
+Name: Chandelier
+Objective: To create a symmetrical, multi-part object by carefully directing the flow of metal over and around a series of small, precisely placed mold pieces.
+
+Description: This level requires precision. The player uses the small molds to create a base. The molten iron is then poured onto the center of this base. The liquid's properties cause it to flow symmetrically outwards, splitting around the molds to form the delicate, branching arms of the chandelier. It's a test of controlling fluid flow on a small scale.
+
+Name: Stairway to Heaven
+Objective: To construct a cascading, diagonal structure by building it one step at a time, using each newly cast step as the foundation for the next.
+
+Description: The player must build a stairway. Using the three initial molds, they cast the first step at the bottom. Once solidified, this new step becomes the base to pour the second step. The process is repeated, with the player building their way up, one step at a time, until the entire "stairway" is complete. It's a puzzle about iterative construction.
+
+Name: Pyramid
+Objective: To build a large, solid pyramid from the bottom up, demonstrating how larger shapes can be composed of smaller, stacked layers.
+
+Description: Similar to the stairway, this puzzle is about layered construction. The player uses the provided molds to cast the wide base of the pyramid first. Once solidified, they rearrange the molds on top of this new base to cast the smaller second layer. This continues until the final, single-block peak is poured, completing the iconic pyramid shape.
+
+Name: Tree
+Objective: To combine the concepts of layered construction (like the pyramid) and core-plugging (like the key and lock) to create a shape with both a wide base and a tall, central feature.
+
+Description: This puzzle requires the player to build the wide, leafy top of the tree first, in a similar layered fashion to the pyramid. However, to create the trunk, they must leave a hole in the center of the base. After the top is cast, they pour iron into this central hole, forming the tree's trunk and connecting all the pieces.
+
+Name: Letter S
+Objective: To solve a complex routing problem, using meticulously placed molds to guide a long, continuous flow of molten metal through a winding path.
+
+Description: Creating the 'S' shape requires the player to become a plumber of molten iron. The player must use the large, complex mold pieces to create a long, snake-like channel. When the iron is poured from the spouts, it flows through this channel, twisting and turning, to fill the entire negative space of the 'S' in a single, continuous pour.
+
+Name: Bull Horns
+Objective: To create two separate, symmetrical objects in a single pour by splitting the flow of metal.
+
+Description: This level tests the player's ability to divide a single resource stream. The player must arrange the molds in the center, underneath the spout, in such a way that when the iron is poured onto them, the stream splits and flows outwards to the left and right simultaneously, forming both horns of the bull at the same time.
+
+Name: Almost Four Cubes
+Objective: To manipulate an overwhelmingly large amount of mold material to isolate and create a very specific, slender target shape.
+
+Description: This level is an exercise in subtraction. The player is given a massive amount of mold material, far more than is needed. The puzzle is to use these large blocks to section off and create the very small, thin negative space of the cross-shaped target. It's about seeing the small empty space within the large solid mass.
+
+Name: Efficiency is key
+Objective: To create a large target shape using very small mold "seeds" and the level's static walls, requiring the player to see how small tools can have a large impact.
+
+Description: The player is given only two tiny, one- and two-block molds, but must create a large shape. The key is to use these minuscule pieces as plugs or diversions against the large static walls of the level. By placing them in just the right spots, they block off sections of a much larger potential cavity, leaving behind the negative space of the target. It teaches that even the smallest tool can be used to define a large structure.
+
+Name: Don't let the iron escape
+Objective: To construct a fully enclosed container "on the fly" to trap a specific amount of metal before it flows away.
+
+Description: This puzzle is a race against the flow. The player must use the single x block to complete a container. However, the container must be designed so that when the 19 units of iron are poured in, the metal fills the 4x4 target area (16 units) and the excess is trapped in a secondary area, rather than spilling off the screen. The player must build a perfect container for both the target and its overflow.
+
+Name: Matrioshka
+Objective: To build a larger version of an initial mold and then use both molds together, nested like a Matrioshka doll, to create the negative space for the final target.
+
+Description: This level features two distinct work areas separated by a wall. On the left, the player must use the environment to cast an inverted L-shape. This L-shape is then brought to the right side, where it is used as a support structure for the smaller of the two C-shaped molds. This entire assembly creates the negative space needed to cast a new, larger inverted C-shape. Finally, the two C-shapes are nested to form the complex negative space of the final target.
+
+Name: Top is the way
+Objective: To solve a puzzle where the target mold is at the top of the canvas, forcing the player to build a structure capable of supporting a pool of molten metal far above the floor.
+
+Description: The target shape, a large archway, can only be formed at the top of the grid. The player must use the various provided mold pieces to build two sturdy pillars. These pillars must be tall enough and placed correctly to serve as the base for the arch. The final pour of iron will rest on top of these pillars, forming the connecting archway and completing the shape.
+
+Name: Spiral
+Objective: To meticulously construct a spiral channel, piece by piece, that guides molten iron from the outside inwards to form the target shape.
+
+Description: A challenging test of logic and routing. The player has only a 2x2 square mold. They must repeatedly cast 2x2 blocks and arrange them in a spiral pattern, leaving a one-block-wide channel. This process is continued until a full spiral path leading to the center is constructed. A single, large pour of iron then flows through this custom-built labyrinth to form the solid spiral target.
+
+Name: Enclosed Age
+Objective: To solve a complex "negative space" puzzle by creating a large outer box and then placing smaller internal blocks to form the intricate walls and passages of the target shape.
+
+Description: This level is the ultimate test of negative space reasoning. The player must first use the provided molds to construct the outer boundary of a large 9x9 square. Then, they must cast and carefully place additional blocks inside this boundary. These internal blocks act as cores, forming the empty spaces within the final, complex, maze-like structure.
+
+Name: Tutorial Brass
+Objective: To introduce the unique soldering property of brass, where newly poured molten brass will fuse with adjacent, already-solid brass pieces to form a single, larger object.
+
+Description: This level serves as the tutorial for brass. The player is given several small molds. They must cast a few separate, solid brass pieces. The key insight is to then arrange these solid pieces as part of a new mold setup. When more molten brass is poured and solidifies, it fuses with the existing solid pieces, allowing the player to create a single, cohesive target shape that would be impossible to cast in a single pour.
+
+Name: Tutorial Hammer
+Objective: To introduce the hammer tool, which allows the player to destroy a single tile of a previously cast object, enabling the creation of hollow shapes.
+
+Description: This tutorial level introduces the hammer. The player's initial mold allows them to easily cast a solid 3x3 square. However, the target is a hollow frame. To achieve this, the player must activate the hammer from the UI and click the center tile of their newly cast square. This action destroys the tile, subtracts from their hammer count, and leaves the desired hollow shape.
