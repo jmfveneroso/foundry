@@ -955,3 +955,451 @@ xxxxxxxxxxxxxxxxxxxxx
 
 Target:
 bbbbbbbbbbbb
+
+=== Way too much metal
+
+Spouts:
+Material: brass
+Pos: 10, 4
+Flow: 17
+Max: 60
+
+Molds:
+b
+bb
+
+ b
+bb
+
+// pos: 0, 26; static
+        x   x
+        x   x
+        x   x
+xxxxxxxxxxxxxxxxxxxxx
+
+Target:
+bb   bb
+ bbbbb
+ bbbbb
+  bbb
+  bbb
+  bbb
+
+=== Everything is brass
+
+Spouts:
+Material: brass
+Pos: 10, 4
+Flow: 17
+Max: 60
+
+Molds:
+// pos: 0, 11
+bbbbbbbbbb bbbbbbbbbb
+bbbbbbbbbb bbbbbbbbbb
+bbbbbbbbbb bbbbbbbbbb
+bbbbbbbbbb bbbbbbbbbb
+bbbbbbbbbb bbbbbbbbbb
+bbbbbbbbbb bbbbbbbbbb
+bbbbbbbbbb bbbbbbbbbb
+bbbbbbbbbb bbbbbbbbbb
+bbbbbbbbbb bbbbbbbbbb
+bbbbbbbbbb bbbbbbbbbb
+bbbbbbb bb bb bbbbbbb
+bbbbbbb       bbbbbbb
+bbbbbbb bb bb bbbbbbb
+bbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbb
+
+// pos: 0, 10; static
+x                   x
+
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxxxx
+
+Target:
+b  b  b
+bbbbbbb
+b  b  b
+
+=== Break the mold
+
+Spouts:
+Material: iron
+Pos: 10, 4
+Flow: 6
+Max: 6
+
+Molds:
+// pos: 7, 11
+xxxxx
+xxxxx
+xxxxx
+xxxxxxxx
+    xxxx
+    xxxx
+    xxxx
+
+// pos: 0, 10; static
+xxxx             xxxx
+
+// pos: 0, 17; static
+xxxx             xxxx
+
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxxxx
+
+Target:
+ xx
+ x
+ x
+xx
+
+MaxHammers: 1
+
+=== Fish and Chips
+
+Spouts:
+Material: iron
+Pos: 10, 4
+Flow: 6
+Max: 6
+
+Molds:
+// pos: 7, 11
+xxxxxxxxxxxxx
+x xxx x xxx x
+x  x  x  x  x
+xxxxxxxxxxxxx
+x  x  x  x  x
+x xxx x xxx x
+xxxxxxxxxxxxx
+x xxx x xxx x
+x  x  x  x  x
+xxxxxxxxxxxxx
+x  x  x  x  x
+x xxx x xxx x
+xxxxxxxxxxxxx
+
+// pos: 0, 16; static
+xx
+xx
+xx
+xx
+xx
+xx
+xx
+xx
+xx
+xx
+
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxxxx
+
+Target:
+  xxxx   x
+ xxxxxx xx
+xxxxxxxxxx
+ xxxxxx xx
+  xxxx   x
+
+
+MaxHammers: 16
+
+=== Little Big Square
+
+Spouts:
+Material: iron
+Pos: 10, 4
+Flow: 9
+Max: 100
+
+Molds:
+// pos: 5, 10
+xxxxxxxxxxx
+xxxxxxxxxxx
+xxxxxxxxxxx
+xxxxxxxxxxx
+xxxxxxxxxxx
+xxxxxxxxxxx
+xxxxxxxxxxx
+xxxxxxxxxxx
+xxxxxxxxxxx
+xxxxxxxxxxx
+
+// pos: 8, 5
+xxxxx
+xxxxx
+xxxxx
+xxxxx
+xxxxx
+
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxxxx
+
+Target:
+xxx xxx
+xxxxxxx
+xxx xxx
+ x   x
+xxx xxx
+xxx xxx
+xxx xxx
+
+=== Hanging Hooks
+
+Spouts:
+Material: iron
+Pos: 10, 4
+Flow: 6
+Max: 6
+
+Molds:
+// pos: 3, 5
+xx
+x
+x
+x
+x
+x
+x
+xx
+
+// pos: 7, 8
+xx
+x
+x  x
+x  x
+xxxx
+
+// pos: 13, 17
+   xx
+    x
+    x
+    x
+  xxx
+xxx
+
+// pos: 3, 18
+xxx
+x     x
+xxx xxx
+  x x
+  xxx
+
+
+// pos: 0, 9; static
+x   x   x   x   x   x
+
+// pos: 0, 19; static
+x   x   x   x   x   x
+
+Target:
+ x
+xxx
+ x
+ x
+
+=== Unblock the path
+
+Spouts:
+Material: brass
+Pos: 14, 8
+Flow: 22
+Max: 22
+
+Material: iron
+Pos: 15, 18
+Flow: 2
+Max: 20
+
+Molds:
+// pos: 2, 17
+bbbbb
+
+// pos: 0, 5; static
+           xxxxxxx
+           x     x
+           x     x
+           x     xxxx
+         xxx     x  x
+         x x     xx x
+         x xxxxxxxx x
+         x x x x xx x
+         x xxx xxxx x
+
+// pos: 4, 22; static
+  x
+ x
+x
+
+// pos: 0, 26; static
+xxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxx
+
+Target:
+xxxxx
+xxx x
+xx xx
+x xxx
+xxxxx
+
+MaxHammers: 1
+
+=== Everything is Lava
+
+Spouts:
+
+Material: iron
+Pos: 10, 8
+Flow: 163
+Max: 163
+
+Material: iron
+Pos: 1, 18
+Flow: 8
+Max: 13
+
+Molds:
+
+// pos: 10, 10
+x      x
+x      x
+xx    xx
+xxxxxxxx
+
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxxxx
+
+Target:
+xxxxxx
+ xxxx
+
+=== Tiny Island
+
+Spouts:
+
+Material: iron
+Pos: 10, 8
+Flow: 3
+Max: 18
+
+Molds:
+
+// pos: 10, 10
+x
+x
+x
+x    
+xxxxx
+
+// pos: 10, 29; static
+x
+
+Target:
+ xx
+xxx
+ xx
+xx
+
+MaxHammers: 1
+
+=== Hanoi
+
+Spouts:
+
+Material: brass
+Pos: 10, 8
+Flow: 1
+Max: 32
+
+Molds:
+
+// pos: 9, 23
+xxx
+x x
+xxx
+
+// pos: 8, 22
+xxxxx
+x   x
+x   x
+x   x
+xxxxx
+
+// pos: 7, 21
+xxxxxxx
+x     x
+x     x
+x     x
+x     x
+x     x
+xxxxxxx
+
+// pos: 10, 24; static
+x
+
+
+Target:
+bbbbbbbbb
+b       b
+b       b
+b       b
+b       b
+b       b
+b       b
+b       b
+bbbbbbbbb
+
+MaxHammers: 0
+
+=== Babel
+
+Spouts:
+
+Material: brass
+Pos: 10, 8
+Flow: 1
+Max: 32
+
+Molds:
+
+// pos: 10, 2
+x
+
+// pos: 9, 4
+xxx
+
+// pos: 8, 6
+xxxxx
+
+// pos: 7, 8
+xxxxxxx
+
+// pos: 6, 10
+xxxxxxxxx
+
+// pos: 5, 12
+xxxxxxxxxxx
+
+// pos: 0, 29; static
+xxxxxxxxxxxxxxxxxxxxx
+
+
+Target:
+bbbbbbbbb
+b       b
+b       b
+b       b
+b       b
+b       b
+b       b
+b       b
+bbbbbbbbb
+
+MaxHammers: 0
